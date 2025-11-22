@@ -19,5 +19,5 @@ public interface GenreRepository extends JpaRepository<GenreEntity, Long> {
 
     boolean existsByNameAndDeletedAtIsNull(String name);
 
-    List<GenreEntity> findAllByDeletedAtBefore(LocalDateTime dateTime);
+    List<GenreEntity> findAllByDeletedAtAfter(LocalDateTime dateTime);
 }

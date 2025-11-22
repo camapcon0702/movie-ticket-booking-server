@@ -76,7 +76,8 @@ public class GenreService {
 
     public void rollBackDeletedGenres() {
         List<GenreEntity> deletedGenres = genreRepository
-                .findAllByDeletedAtBefore(LocalDateTime.now().minusMinutes(10));
+                .findAllByDeletedAtAfter(LocalDateTime.now().minusMinutes(10));
+
         if (deletedGenres.isEmpty()) {
             throw new IllegalArgumentException("Không có thể loại phim nào để khôi phục!");
         }
