@@ -1,5 +1,7 @@
 package qnt.moviebooking.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,9 +68,10 @@ public class GenreController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<java.util.List<GenreResourceDto>>> getAllGenres() {
+    public ResponseEntity<ApiResponse<List<GenreResourceDto>>> getAllGenres() {
+
         try {
-            java.util.List<GenreResourceDto> genres = genreService.getAllGenres();
+            List<GenreResourceDto> genres = genreService.getAllGenres();
 
             return ResponseEntity.ok().body(new ApiResponse<>(true, "Lấy danh sách thể loại phim thành công", genres));
         } catch (Exception e) {
