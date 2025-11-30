@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import qnt.moviebooking.dto.ApiResponse;
-import qnt.moviebooking.dto.request.Showtime.ShowtimeRequestDto;
+import qnt.moviebooking.dto.request.ShowtimeRequestDto;
 import qnt.moviebooking.dto.resource.ShowtimeResourceDto;
 import qnt.moviebooking.service.ShowtimeService;
 
@@ -29,7 +29,7 @@ public class ShowtimeController {
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
-                    .body(new ApiResponse<>(false, "Đã xảy ra lỗi khi tạo showtime", null));
+                    .body(new ApiResponse<>(false, "Đã xảy ra lỗi khi tạo showtime"+e.getMessage(), null));
         }
     }
 
@@ -44,11 +44,11 @@ public class ShowtimeController {
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
-                    .body(new ApiResponse<>(false, "Đã xảy ra lỗi khi cập nhật showtime", null));
+                    .body(new ApiResponse<>(false, "Đã xảy ra lỗi khi cập nhật showtime"+e.getMessage(), null));
         }
     }
     @DeleteMapping("/admin/showtimes/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteMovie(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteShowtime(@PathVariable Long id) {
         try {
             showtimeService.softDeleteShowtime(id);
             return ResponseEntity.ok(new ApiResponse<>(true, "Xóa showtime thành công", null));
@@ -56,10 +56,23 @@ public class ShowtimeController {
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
-                    .body(new ApiResponse<>(false, "Đã xảy ra lỗi khi xóa showtime", null));
+                    .body(new ApiResponse<>(false, "Đã xảy ra lỗi khi xóa showtime"+e.getMessage(), null));
         }
     }
 
+    @PostMapping("/admin/showtimes/rollback")
+    public ResponseEntity<ApiResponse<Void>> rollbackShowtime()
+    {
+        try {
+            showtimeService.rollBackDeletedShowtimes();
+            return ResponseEntity.ok(new ApiResponse<>(true, "Rollback showtime thành công", null));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new ApiResponse<>(false, "Đã xảy ra lỗi Rollback showtime"+e.getMessage(), null));
+        }
+    }
 
 
     /* ===================== USER ===================== */
@@ -72,7 +85,7 @@ public class ShowtimeController {
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
-                    .body(new ApiResponse<>(false, "Đã xảy ra lỗi khi lấy thông tin showtime", null));
+                    .body(new ApiResponse<>(false, "Đã xảy ra lỗi khi lấy thông tin showtime"+e.getMessage(), null));
         }
     }
 
@@ -84,7 +97,7 @@ public class ShowtimeController {
             return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách showtime thành công", showtimes));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
-                    .body(new ApiResponse<>(false, "Đã xảy ra lỗi khi lấy danh sách showtime", null));
+                    .body(new ApiResponse<>(false, "Đã xảy ra lỗi khi lấy danh sách showtime"+e.getMessage(), null));
         }
     }
 

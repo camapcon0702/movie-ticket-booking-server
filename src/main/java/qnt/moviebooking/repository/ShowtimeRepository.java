@@ -13,9 +13,9 @@ public interface ShowtimeRepository extends JpaRepository<ShowtimeEntity,Long> {
 
     List <ShowtimeEntity> findByAuditoriumIdAndStartTimeIn(Long id, List<LocalDateTime> startTime);
 
-    List <ShowtimeEntity> findByMovieId(Long movieId);
-
     Optional<ShowtimeEntity> findByIdAndDeletedAtIsNull(Long id);
 
     List <ShowtimeEntity> findByMovieIdAndDeletedAtIsNotNull(Long movieId);
+
+    List <ShowtimeEntity> findAllByDeletedAtAfter(LocalDateTime dateTime);
 }

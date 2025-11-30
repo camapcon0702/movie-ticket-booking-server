@@ -1,9 +1,10 @@
 package qnt.moviebooking.service;
 
 import org.springframework.stereotype.Service;
-import qnt.moviebooking.dto.request.Showtime.ShowtimeRequestDto;
+import qnt.moviebooking.dto.request.ShowtimeRequestDto;
 import qnt.moviebooking.dto.resource.ShowtimeResourceDto;
 import qnt.moviebooking.entity.AuditoriumEntity;
+import qnt.moviebooking.entity.GenreEntity;
 import qnt.moviebooking.entity.MovieEntity;
 import qnt.moviebooking.entity.ShowtimeEntity;
 import qnt.moviebooking.repository.AuditoriumRepository;
@@ -43,7 +44,7 @@ public class ShowtimeService {
     }
 
     public List<ShowtimeResourceDto> selectShowtimeByMovie (Long movieId){
-       List<ShowtimeEntity> showtimes = showtimeRepository.findByMovieId(movieId);
+       List<ShowtimeEntity> showtimes = showtimeRepository.findByMovieIdAndDeletedAtIsNotNull(movieId);
 
        if (showtimes.isEmpty()){
            throw new RuntimeException("Không có suất  chiếu nào");
@@ -86,16 +87,32 @@ public class ShowtimeService {
 
     }
 
-public void softDeleteShowtime (Long showtimeId)
-{
-      ShowtimeEntity showtime = showtimeRepository.findByIdAndDeletedAtIsNull(showtimeId)
-              .orElseThrow(() -> new RuntimeException("Không tìm thấy xuất chiếu"));
+    public void softDeleteShowtime (Long showtimeId)
+    {
+          ShowtimeEntity showtime = showtimeRepository.findByIdAndDeletedAtIsNull(showtimeId)
+                  .orElseThrow(() -> new RuntimeException("Không tìm thấy xuất chiếu"));
 
-      showtime.setDeletedAt(LocalDateTime.now());
+          showtime.setDeletedAt(LocalDateTime.now());
 
-      showtimeRepository.save(showtime);
+          showtimeRepository.save(showtime);
 
-}
+    }
+
+    public void  rollBackDeletedShowtimes()
+    {
+        List<ShowtimeEntity> deletedShowtime = showtimeRepository
+                .findAllByDeletedAtAfter(LocalDateTime.now().minusMinutes(10));
+
+        if (showtimeRepository.count()==0) {
+            throw new IllegalArgumentException("Không có showtime nào để khôi phục!");
+        }
+
+        for (ShowtimeEntity genre : deletedShowtime) {
+            genre.setDeletedAt(null);
+        }
+
+        showtimeRepository.saveAll(deletedShowtime);
+    }
 
 
 
@@ -116,10 +133,11 @@ public void softDeleteShowtime (Long showtimeId)
     private  List<ShowtimeResourceDto> mapToGroupedDto(List<ShowtimeEntity> entities) {
         return entities.stream()
                 .map(entity -> ShowtimeResourceDto.builder()
+                        .id(entity.getId())
                         .movieId(entity.getMovie().getId())
                         .auditoriumId(entity.getAuditorium().getId())
                         .basePrice(entity.getBasePrice())
-                        .startTimes(new LocalTime[]{entity.getStartTime().toLocalTime()}) // vẫn là mảng, nhưng chỉ có 1 phần tử
+                        .startTimes(entity.getStartTime())
                         .createdAt(entity.getCreatedAt())
                         .updatedAt(entity.getUpdatedAt())
                         .build())
@@ -132,7 +150,7 @@ public void softDeleteShowtime (Long showtimeId)
                 .movieId(entity.getMovie().getId())
                 .auditoriumId(entity.getAuditorium().getId())
                 .basePrice(entity.getBasePrice())
-                .startTimes(new LocalTime[]{entity.getStartTime().toLocalTime()})
+                .startTimes(entity.getStartTime())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

@@ -13,10 +13,11 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @Builder
 public class ShowtimeResourceDto {
+    private Long  id;
     private Long movieId;
     private Long auditoriumId;
     private Integer basePrice;
-    private LocalTime[] startTimes;
+    private LocalDateTime startTimes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
