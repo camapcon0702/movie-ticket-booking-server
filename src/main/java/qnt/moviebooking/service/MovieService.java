@@ -15,18 +15,15 @@ import qnt.moviebooking.dto.resource.MovieResouresDto;
 import qnt.moviebooking.entity.GenreEntity;
 import qnt.moviebooking.entity.MovieEntity;
 import qnt.moviebooking.enums.MovieEnums;
-import qnt.moviebooking.repository.GenreRepository;
 import qnt.moviebooking.repository.MovieRepository;
 
 @Service
 @RequiredArgsConstructor
 public class MovieService {
     private final MovieRepository movieRepository;
-    private final GenreRepository genreRepository;
+    private final GenreService genreService;
 
     private final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-
-    /* ===================== ADMIN ===================== */
 
     public MovieResouresDto createMovie(MovieRequestDto dto) {
         validateTitle(dto.getTitle(), null);
@@ -36,8 +33,7 @@ public class MovieService {
     }
 
     public MovieResouresDto updateMovie(Long id, MovieRequestDto dto) {
-        MovieEntity existingMovie = movieRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new IllegalArgumentException("Phim không tồn tại với id: " + id));
+        MovieEntity existingMovie = getMovieEntityById(id);
 
         validateTitle(dto.getTitle(), existingMovie.getId());
         validateGenres(dto.getGenreIds());
@@ -47,9 +43,13 @@ public class MovieService {
         return mapToDto(movieRepository.save(updatedMovie));
     }
 
-    public void deleteMovie(Long id) {
-        MovieEntity movie = movieRepository.findByIdAndDeletedAtIsNull(id)
+    public MovieEntity getMovieEntityById(Long id) {
+        return movieRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new IllegalArgumentException("Phim không tồn tại với id: " + id));
+    }
+
+    public void deleteMovie(Long id) {
+        MovieEntity movie = getMovieEntityById(id);
         movie.setDeletedAt(LocalDateTime.now());
         movieRepository.save(movie);
     }
@@ -74,8 +74,7 @@ public class MovieService {
     }
 
     public MovieResouresDto getMovieByIdAdmin(Long id) {
-        MovieEntity movie = movieRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new IllegalArgumentException("Phim không tồn tại với id: " + id));
+        MovieEntity movie = getMovieEntityById(id);
         return mapToDto(movie);
     }
 
@@ -88,8 +87,6 @@ public class MovieService {
         return movieRepository.findDistinctByGenresIdAndDeletedAtIsNull(genreId)
                 .stream().map(this::mapToDto).collect(Collectors.toList());
     }
-
-    /* ===================== USER ===================== */
 
     private static final List<MovieEnums> USER_VISIBLE_STATUSES = Arrays.asList(
             MovieEnums.NOW_SHOWING,
@@ -129,8 +126,6 @@ public class MovieService {
                 .toList();
     }
 
-    /* ===================== COMMON ===================== */
-
     private void validateTitle(String title, Long excludeId) {
         boolean exists = (excludeId == null) ? movieRepository.existsByTitleAndDeletedAtIsNull(title)
                 : movieRepository.findByTitleAndDeletedAtIsNull(title)
@@ -145,7 +140,7 @@ public class MovieService {
             throw new IllegalArgumentException("Phim phải có ít nhất 1 thể loại");
         }
         for (Long id : genreIds) {
-            if (!genreRepository.findByIdAndDeletedAtIsNull(id).isPresent()) {
+            if (!genreService.getGenreEntityById(id).getId().equals(id)) {
                 throw new IllegalArgumentException("Thể loại không tồn tại: " + id);
             }
         }
@@ -160,7 +155,7 @@ public class MovieService {
         }
 
         List<GenreEntity> genres = Arrays.stream(dto.getGenreIds())
-                .map(id -> genreRepository.findByIdAndDeletedAtIsNull(id).get())
+                .map(id -> genreService.getGenreEntityById(id))
                 .collect(Collectors.toList());
 
         LocalDate releaseDate;

@@ -37,18 +37,26 @@ public class RoleService {
                 .collect(Collectors.toList());
     }
 
+    public RoleEntity getRoleEntityById(Long id) {
+        return roleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Role không tồn tại với id: " + id));
+    }
+
+    public RoleEntity getRoleEntityByName(String name) {
+        return roleRepository.findByRoleName(name)
+                .orElseThrow(() -> new IllegalArgumentException("Role không tồn tại với tên: " + name));
+    }
+
     // Lấy role theo ID
     public RoleResourceDto getRoleById(Long id) {
-        RoleEntity roleEntity = roleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Role không tồn tại với id: " + id));
+        RoleEntity roleEntity = getRoleEntityById(id);
 
         return mapToDto(roleEntity);
     }
 
     // Cập nhật role
     public RoleResourceDto updateRole(Long id, RoleRequestDto request) {
-        RoleEntity existingRole = roleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Role không tồn tại với id: " + id));
+        RoleEntity existingRole = getRoleEntityById(id);
 
         existingRole.setRoleName(request.getName());
         existingRole.setDescription(request.getDescription());

@@ -35,9 +35,13 @@ public class GenreService {
                 .toList();
     }
 
-    public GenreResourceDto getGenreById(Long id) {
-        GenreEntity genreEntity = genreRepository.findByIdAndDeletedAtIsNull(id)
+    public GenreEntity getGenreEntityById(Long id) {
+        return genreRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thể loại phim với ID: " + id));
+    }
+
+    public GenreResourceDto getGenreById(Long id) {
+        GenreEntity genreEntity = getGenreEntityById(id);
 
         return mapToDto(genreEntity);
     }
@@ -50,8 +54,7 @@ public class GenreService {
     }
 
     public GenreResourceDto updateGenre(Long id, GenreRequestDto genreRequestDto) {
-        GenreEntity genreEntity = genreRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thể loại phim với ID: " + id));
+        GenreEntity genreEntity = getGenreEntityById(id);
 
         if (!genreEntity.getName().equals(genreRequestDto.getName()) &&
                 genreRepository.existsByNameAndDeletedAtIsNull(genreRequestDto.getName())) {
@@ -67,8 +70,7 @@ public class GenreService {
     }
 
     public void deleteGenre(Long id) {
-        GenreEntity genreEntity = genreRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thể loại phim với ID: " + id));
+        GenreEntity genreEntity = getGenreEntityById(id);
 
         genreEntity.setDeletedAt(LocalDateTime.now());
         genreRepository.save(genreEntity);

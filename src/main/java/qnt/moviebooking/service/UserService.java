@@ -44,9 +44,13 @@ public class UserService {
         return mapToDto(currentUser);
     }
 
-    public UserResourceDto getUserById(Long id) {
-        UserEntity user = userRepository.findById(id)
+    public UserEntity getUserEntityById(Long id) {
+        return userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với id: " + id));
+    }
+
+    public UserResourceDto getUserById(Long id) {
+        UserEntity user = getUserEntityById(id);
         return mapToDto(user);
     }
 
@@ -171,6 +175,19 @@ public class UserService {
         UserEntity user = getUserByEmailNoDelete(email);
         user.setDeletedAt(LocalDateTime.now());
         userRepository.save(user);
+    }
+
+    public void rollbackDeletedUser() {
+        List<UserEntity> users = userRepository.findAllByDeletedAtAfter(LocalDateTime.now().minusMinutes(10));
+
+        if (users.isEmpty()) {
+            throw new IllegalArgumentException("Không có tài khoản nào để khôi phục!");
+        }
+
+        for (UserEntity user : users) {
+            user.setDeletedAt(null);
+            userRepository.save(user);
+        }
     }
 
     public UserEntity updateUserForce(UserEntity user) {

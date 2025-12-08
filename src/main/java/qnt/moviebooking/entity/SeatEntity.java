@@ -1,7 +1,6 @@
 package qnt.moviebooking.entity;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -12,24 +11,30 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import qnt.moviebooking.enums.SeatEnums;
 
-@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
 @Builder
-@Table(name = "tbl_auditoriums")
-public class AuditoriumEntity {
+@Table(name = "tbl_seats")
+public class SeatEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+    private String rowChart;
+    private String seatNumber;
+    private SeatEnums seatType;
+    @Column(nullable = true)
+    private boolean status;
     @Column(updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -37,6 +42,7 @@ public class AuditoriumEntity {
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    @OneToMany(mappedBy = "auditorium", fetch = FetchType.LAZY)
-    private List<SeatEntity> seats;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "auditorium_id", nullable = false)
+    private AuditoriumEntity auditorium;
 }

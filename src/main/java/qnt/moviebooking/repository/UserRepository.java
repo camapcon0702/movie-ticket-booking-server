@@ -2,6 +2,7 @@ package qnt.moviebooking.repository;
 
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,4 +33,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByEmailAndDeletedAtIsNull(String email);
 
     Optional<UserEntity> findByEmailAndDeletedAtNotNull(String email);
+
+    List<UserEntity> findAllByDeletedAtAfter(LocalDateTime time);
 }
