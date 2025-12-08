@@ -6,14 +6,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class ShowtimeResourceDto {
-    private Long  id;
+    private Long id;
     private Long movieId;
     private Long auditoriumId;
     private Integer basePrice;
