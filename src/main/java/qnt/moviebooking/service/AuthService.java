@@ -14,7 +14,6 @@ import qnt.moviebooking.dto.request.RegisterRequestDto;
 import qnt.moviebooking.dto.resource.UserResourceDto;
 import qnt.moviebooking.entity.RoleEntity;
 import qnt.moviebooking.entity.UserEntity;
-import qnt.moviebooking.repository.RoleRepository;
 import qnt.moviebooking.util.JwtUtil;
 
 @Service
@@ -22,7 +21,7 @@ import qnt.moviebooking.util.JwtUtil;
 public class AuthService {
     private final UserService userService;
     private final EmailService emailService;
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
@@ -61,8 +60,7 @@ public class AuthService {
             throw new RuntimeException("Email đã được đăng ký!");
         }
 
-        RoleEntity defaultRole = roleRepository.findByRoleName("USER")
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy vai trò mặc định!"));
+        RoleEntity defaultRole = roleService.getRoleEntityByName("USER");
 
         String code = generateVerificationCode();
         LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(EXPIRATION_MINUTES);

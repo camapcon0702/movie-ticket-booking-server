@@ -25,8 +25,7 @@ public class AuditoriumService {
     }
 
     public AuditoriumResourceDto updateAuditorium(Long id, AuditoryumRequestDto requestDto) {
-        AuditoriumEntity existingAuditorium = auditoriumRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new IllegalArgumentException("Phòng chiếu không tồn tại với id: " + id));
+        AuditoriumEntity existingAuditorium = getAuditoriumEntityById(id);
 
         validateTitle(requestDto.getName(), existingAuditorium.getId());
 
@@ -37,8 +36,7 @@ public class AuditoriumService {
     }
 
     public void deleteAuditorium(Long id) {
-        AuditoriumEntity auditorium = auditoriumRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new IllegalArgumentException("Phòng chiếu không tồn tại với id: " + id));
+        AuditoriumEntity auditorium = getAuditoriumEntityById(id);
         auditorium.setDeletedAt(LocalDateTime.now());
         auditoriumRepository.save(auditorium);
     }
@@ -53,9 +51,13 @@ public class AuditoriumService {
         auditoriumRepository.saveAll(deletedAuditoriums);
     }
 
-    public AuditoriumResourceDto getAuditoriumById(Long id) {
-        AuditoriumEntity auditorium = auditoriumRepository.findByIdAndDeletedAtIsNull(id)
+    public AuditoriumEntity getAuditoriumEntityById(Long id) {
+        return auditoriumRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new IllegalArgumentException("Phòng chiếu không tồn tại với id: " + id));
+    }
+
+    public AuditoriumResourceDto getAuditoriumById(Long id) {
+        AuditoriumEntity auditorium = getAuditoriumEntityById(id);
         return mapToDto(auditorium);
     }
 

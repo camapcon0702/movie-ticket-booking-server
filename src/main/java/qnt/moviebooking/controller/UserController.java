@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -46,7 +47,21 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage(), null));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
-                    .body(new ApiResponse<>(false, "Có lỗi xảy ra khi xoá tài khoản", null));
+                    .body(new ApiResponse<>(false, "Có lỗi xảy ra khi xoá tài khoản!", null));
+        }
+    }
+
+    @PostMapping("/admin/users/rollback-deleted")
+    public ResponseEntity<ApiResponse<Void>> rollbackDeleted() {
+        try {
+            userService.rollbackDeletedUser();
+
+            return ResponseEntity.ok(new ApiResponse<>(true, "Khôi phục tài khoản thành công!", null));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(new ApiResponse<>(false, "Có lỗi xảy ra khi khôi phục tài khoản!", null));
         }
     }
 
@@ -60,7 +75,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage(), null));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
-                    .body(new ApiResponse<>(false, "Có lỗi xảy ra khi tìm tài khoản", null));
+                    .body(new ApiResponse<>(false, "Có lỗi xảy ra khi tìm tài khoản!", null));
         }
     }
 
@@ -74,7 +89,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiResponse<>(false, e.getMessage(), null));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
-                    .body(new ApiResponse<>(false, "Có lỗi xảy ra khi tìm tài khoản", null));
+                    .body(new ApiResponse<>(false, "Có lỗi xảy ra khi tìm tài khoản!", null));
         }
     }
 
@@ -92,7 +107,7 @@ public class UserController {
                     .body(new ApiResponse<>(false, e.getMessage(), null));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
-                    .body(new ApiResponse<>(false, "Có lỗi xảy ra khi cập nhật tài khoản", null));
+                    .body(new ApiResponse<>(false, "Có lỗi xảy ra khi cập nhật tài khoản!", null));
         }
     }
 
