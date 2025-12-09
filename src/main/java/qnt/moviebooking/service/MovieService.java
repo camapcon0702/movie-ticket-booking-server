@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.request.MovieRequestDto;
@@ -19,12 +20,14 @@ import qnt.moviebooking.repository.MovieRepository;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MovieService {
     private final MovieRepository movieRepository;
     private final GenreService genreService;
 
     private final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
+    @Transactional
     public MovieResouresDto createMovie(MovieRequestDto dto) {
         validateTitle(dto.getTitle(), null);
         validateGenres(dto.getGenreIds());
@@ -32,6 +35,7 @@ public class MovieService {
         return mapToDto(movieRepository.save(movieEntity));
     }
 
+    @Transactional
     public MovieResouresDto updateMovie(Long id, MovieRequestDto dto) {
         MovieEntity existingMovie = getMovieEntityById(id);
 
@@ -48,12 +52,14 @@ public class MovieService {
                 .orElseThrow(() -> new IllegalArgumentException("Phim không tồn tại với id: " + id));
     }
 
+    @Transactional
     public void deleteMovie(Long id) {
         MovieEntity movie = getMovieEntityById(id);
         movie.setDeletedAt(LocalDateTime.now());
         movieRepository.save(movie);
     }
 
+    @Transactional
     public void rollBackDeletedMovies() {
         List<MovieEntity> deletedMovies = movieRepository
                 .findAllByDeletedAtAfter(LocalDateTime.now().minusMinutes(10));
