@@ -1,6 +1,9 @@
 package qnt.moviebooking.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.request.ShowtimeRequestDto;
 import qnt.moviebooking.dto.resource.ShowtimeResourceDto;
 import qnt.moviebooking.entity.AuditoriumEntity;
@@ -15,18 +18,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ShowtimeService {
     private final ShowtimeRepository showtimeRepository;
     private final AuditoriumRepository auditoriumRepository;
     private final MovieRepository movieRepository;
 
-    public ShowtimeService(ShowtimeRepository showtimeRepository, AuditoriumRepository auditoriumRepository,
-            MovieRepository movieRepository) {
-        this.showtimeRepository = showtimeRepository;
-        this.auditoriumRepository = auditoriumRepository;
-        this.movieRepository = movieRepository;
-    }
-
+    @Transactional
     public List<ShowtimeResourceDto> createShowtimes(ShowtimeRequestDto showtimeRequestDto) {
         MovieEntity movie = movieRepository.findByIdAndDeletedAtIsNull(showtimeRequestDto.getMovieId())
                 .orElseThrow(() -> new RuntimeException("Không thấy movie"));
@@ -60,6 +59,7 @@ public class ShowtimeService {
         return mapToSingleDto(showtime);
     }
 
+    @Transactional
     public ShowtimeResourceDto updateShowtime(Long showtimeId, ShowtimeRequestDto dto) {
         ShowtimeEntity existingShowtime = showtimeRepository.findByIdAndDeletedAtIsNull(showtimeId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy suất chiếu"));
@@ -86,6 +86,7 @@ public class ShowtimeService {
 
     }
 
+    @Transactional
     public void softDeleteShowtime(Long showtimeId) {
         ShowtimeEntity showtime = showtimeRepository.findByIdAndDeletedAtIsNull(showtimeId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy xuất chiếu"));
@@ -96,6 +97,7 @@ public class ShowtimeService {
 
     }
 
+    @Transactional
     public void rollBackDeletedShowtimes() {
         List<ShowtimeEntity> deletedShowtime = showtimeRepository
                 .findAllByDeletedAtAfter(LocalDateTime.now().minusMinutes(10));
@@ -111,7 +113,6 @@ public class ShowtimeService {
         showtimeRepository.saveAll(deletedShowtime);
     }
 
-    /* ===================== COMMON ===================== */
     private List<ShowtimeEntity> mapToEnity(ShowtimeRequestDto Dto, MovieEntity movie, AuditoriumEntity auditorium) {
         return Dto.getStartTimes().stream()
                 .map(time -> ShowtimeEntity.builder()

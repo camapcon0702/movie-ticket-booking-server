@@ -32,7 +32,5 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     Optional<UserEntity> findByEmailAndDeletedAtIsNull(String email);
 
-    Optional<UserEntity> findByEmailAndDeletedAtNotNull(String email);
-
     List<UserEntity> findAllByDeletedAtAfter(LocalDateTime time);
 }

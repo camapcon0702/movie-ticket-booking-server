@@ -5,9 +5,11 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.request.AuditoryumRequestDto;
 import qnt.moviebooking.dto.resource.AuditoriumResourceDto;
+import qnt.moviebooking.dto.resource.SeatResourceDto;
 import qnt.moviebooking.entity.AuditoriumEntity;
 import qnt.moviebooking.repository.AuditoriumRepository;
 
@@ -15,7 +17,9 @@ import qnt.moviebooking.repository.AuditoriumRepository;
 @RequiredArgsConstructor
 public class AuditoriumService {
     private final AuditoriumRepository auditoriumRepository;
+    private final SeatService seatService;
 
+    @Transactional
     public AuditoriumResourceDto createAuditorium(AuditoryumRequestDto requestDto) {
         validateTitle(requestDto.getName(), null);
 
@@ -24,6 +28,7 @@ public class AuditoriumService {
         return mapToDto(savedEntity);
     }
 
+    @Transactional
     public AuditoriumResourceDto updateAuditorium(Long id, AuditoryumRequestDto requestDto) {
         AuditoriumEntity existingAuditorium = getAuditoriumEntityById(id);
 
@@ -35,12 +40,23 @@ public class AuditoriumService {
         return mapToDto(savedEntity);
     }
 
+    @Transactional
     public void deleteAuditorium(Long id) {
         AuditoriumEntity auditorium = getAuditoriumEntityById(id);
+        List<SeatResourceDto> seats = seatService.getSeatsByAuditorium(id);
+
+        if (!seats.isEmpty()) {
+            List<Long> seatIds = seats.stream().map(SeatResourceDto::getId).toList();
+
+            seatService.deleteSeats(seatIds);
+        }
+
         auditorium.setDeletedAt(LocalDateTime.now());
+
         auditoriumRepository.save(auditorium);
     }
 
+    @Transactional
     public void rollBackDeletedAuditoriums() {
         var deletedAuditoriums = auditoriumRepository
                 .findAllByDeletedAtAfter(LocalDateTime.now().minusMinutes(10));

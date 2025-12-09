@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.request.SeatRequestDto;
@@ -16,11 +17,13 @@ import qnt.moviebooking.enums.SeatEnums;
 import qnt.moviebooking.repository.SeatRepository;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class SeatService {
     private final SeatRepository seatRepository;
     private final AuditoriumService auditoriumService;
 
+    @Transactional
     public List<SeatResourceDto> createSeats(SeatsRequestDto dto) {
 
         SeatEnums seatType = parseSeatType(dto.getSeatType());
@@ -51,6 +54,7 @@ public class SeatService {
         return savedEntities.stream().map(this::mapToDto).toList();
     }
 
+    @Transactional
     public SeatResourceDto updateSeat(Long id, SeatRequestDto dto) {
         SeatEntity existingSeat = getSeatEntityById(id);
         SeatEnums seatType = parseSeatType(dto.getSeatType());
@@ -76,6 +80,7 @@ public class SeatService {
         return mapToDto(savedEntity);
     }
 
+    @Transactional
     public void deleteSeat(Long id) {
         SeatEntity seat = getSeatEntityById(id);
         seat.setDeletedAt(LocalDateTime.now());
@@ -83,6 +88,26 @@ public class SeatService {
         seatRepository.save(seat);
     }
 
+    @Transactional
+    public void deleteSeats(List<Long> ids) {
+
+        List<SeatEntity> seats = seatRepository.findAllById(ids);
+
+        if (seats.isEmpty()) {
+            throw new IllegalArgumentException("Danh sách ghế cần xóa không tồn tại!");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        seats.forEach(seat -> {
+            seat.setDeletedAt(now);
+            seat.setStatus(false);
+        });
+
+        seatRepository.saveAll(seats);
+    }
+
+    @Transactional
     public void rollbackDeletedSeat() {
         List<SeatEntity> deletedSeats = seatRepository.findAllByDeletedAtAfter(LocalDateTime.now().minusMinutes(10));
 

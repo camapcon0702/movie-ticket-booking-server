@@ -7,6 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.request.LoginRequestDto;
@@ -17,6 +18,7 @@ import qnt.moviebooking.entity.UserEntity;
 import qnt.moviebooking.util.JwtUtil;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AuthService {
     private final UserService userService;
@@ -54,6 +56,7 @@ public class AuthService {
         emailService.sendEmail(email, subject, body);
     }
 
+    @Transactional
     public UserResourceDto register(RegisterRequestDto request) {
 
         if (userService.isExistedUserNoDelete(request.getEmail())) {
@@ -72,6 +75,7 @@ public class AuthService {
         return savedUser;
     }
 
+    @Transactional
     public void resendVerificationCode(String email) {
         UserEntity user = userService.getUserByEmail(email);
 
