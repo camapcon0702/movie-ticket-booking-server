@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
@@ -16,7 +17,7 @@ public class ShowtimeResourceDto {
     private Long  id;
     private Long movieId;
     private Long auditoriumId;
-    private Integer basePrice;
+    private BigDecimal basePrice;
     private LocalDateTime startTimes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

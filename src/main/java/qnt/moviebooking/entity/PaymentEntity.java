@@ -11,6 +11,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import qnt.moviebooking.enums.BookingEnums;
 import qnt.moviebooking.enums.PaymentEnums;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -25,12 +26,13 @@ public class PaymentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private Integer amount;
+    private BigDecimal amount;
     private String method;
-    private LocalDateTime payment_time;
-    private String transaction_id;
-    private String order_id;
-    private Integer result_code;
+    private LocalDateTime paymentTime;
+    private String transactionId;
+    private String orderId;
+    private String extraData;
+    private Integer resultCode;
     private PaymentEnums status;
     @Column(updatable = false)
     @CreationTimestamp

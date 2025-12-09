@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,7 +22,7 @@ public class VoucherEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id;
     private  String code;
-    private  Integer discount_amount;
+    private BigDecimal discount_amount;
     private  Double discount_percentage;
     private LocalDateTime expiry_date;
 

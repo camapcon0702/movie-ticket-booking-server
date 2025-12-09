@@ -7,28 +7,33 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import qnt.moviebooking.enums.SeatEnums;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tbl_services")
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class ServiceEntity {
+@Table(name = "tbl_seats")
+public class SeatEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String name;
+    private String row_char;
+    private int seat_number;
     private BigDecimal price;
-    private String urlimg;
-    @Column(updatable = false)
+    private SeatEnums type;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
     @UpdateTimestamp
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "auditorium_id", nullable = false)
+    private AuditoriumEntity auditorium;
 }

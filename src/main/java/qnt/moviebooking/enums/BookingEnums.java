@@ -5,5 +5,7 @@ public enum BookingEnums {
     PAID,
     CANCELLED,
     SUCCESS,
+    REFUNDED,
     ARCHIVED,
+
 }

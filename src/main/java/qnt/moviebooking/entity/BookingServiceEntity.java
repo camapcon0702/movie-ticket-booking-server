@@ -7,9 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import qnt.moviebooking.enums.BookingEnums;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -17,14 +15,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name="tbl_bookings")
-public class BookingEntity {
+@Table(name="tbl_booking_service")
+public class BookingServiceEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
-    private LocalDateTime bookingTime;
-    private BigDecimal total_amount;
-    private BookingEnums status;
     @Column(updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -33,21 +29,10 @@ public class BookingEntity {
     private LocalDateTime deletedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "showtime_id", nullable = false)
-    private ShowtimeEntity showtime;
+    @JoinColumn(name = "booking_id", nullable = false)
+    private BookingEntity booking;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "voucher_id", nullable = true)
-    private VoucherEntity voucher;
-
-    @PrePersist
-    public void prePersist() {
-        if (status == null) {
-            status = BookingEnums.PENDING;
-        }
-    }
+    @JoinColumn(name = "service_id", nullable = false)
+    private ServiceEntity service;
 }
