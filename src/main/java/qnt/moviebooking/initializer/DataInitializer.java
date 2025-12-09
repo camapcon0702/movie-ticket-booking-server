@@ -1,5 +1,6 @@
 package qnt.moviebooking.initializer;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,12 @@ public class DataInitializer implements CommandLineRunner {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${admin.email}")
+    private String adminEmail;
+
+    @Value("${admin.password}")
+    private String adminPassword;
 
     @Override
     public void run(String... args) throws Exception {
@@ -34,10 +41,10 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initializeAdminUser() {
-        if (!userRepository.existsByEmail("admin@gmail.com")) {
+        if (!userRepository.existsByEmail(adminEmail)) {
             UserEntity admin = UserEntity.builder()
-                    .email("admin@gmail.com")
-                    .password(passwordEncoder.encode("admin123"))
+                    .email(adminEmail)
+                    .password(passwordEncoder.encode(adminPassword))
                     .role(roleRepository.findByRoleName("ADMIN").get())
                     .fullName("Administrator")
                     .isActive(true)
