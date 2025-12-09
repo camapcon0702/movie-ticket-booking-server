@@ -1,4 +1,4 @@
-package qnt.moviebooking.controller;
+package qnt.moviebooking.controller.admin;
 
 import java.util.List;
 

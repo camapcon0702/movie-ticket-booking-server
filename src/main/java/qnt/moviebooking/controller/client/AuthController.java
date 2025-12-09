@@ -1,4 +1,4 @@
-package qnt.moviebooking.controller;
+package qnt.moviebooking.controller.client;
 
 import java.util.Map;
 
@@ -19,7 +19,7 @@ import qnt.moviebooking.service.AuthService;
 import qnt.moviebooking.service.UserService;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/v1.0/auth")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
@@ -49,41 +49,24 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserResourceDto>> register(@RequestBody RegisterRequestDto request) {
-        try {
-            UserResourceDto registeredUser = authService.register(request);
+        UserResourceDto registeredUser = authService.register(request);
 
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new ApiResponse<>(true,
-                            "Đăng ký thành công!",
-                            registeredUser));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponse<>(false, e.getMessage(), null));
-        }
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse<>(true, "Đăng ký thành công!", registeredUser));
     }
 
     @PostMapping("/activate")
     public ResponseEntity<ApiResponse<Void>> activateUser(@RequestParam String email, @RequestParam String code) {
-        try {
-            userService.activateUser(email, code);
+        userService.activateUser(email, code);
 
-            return ResponseEntity
-                    .ok(new ApiResponse<>(true, "Kích hoạt tài khoản thành công!", null));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponse<>(false, e.getMessage(), null));
-        }
+        return ResponseEntity
+                .ok(new ApiResponse<>(true, "Kích hoạt tài khoản thành công!", null));
     }
 
     @PostMapping("/resend-code")
     public ResponseEntity<ApiResponse<Void>> resendVerificationCode(@RequestParam String email) {
-        try {
-            authService.resendVerificationCode(email);
+        authService.resendVerificationCode(email);
 
-            return ResponseEntity.ok(new ApiResponse<>(true, "Mã xác thực mới đã được gửi đến email của bạn.", null));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponse<>(false, e.getMessage(), null));
-        }
+        return ResponseEntity.ok(new ApiResponse<>(true, "Mã xác thực mới đã được gửi đến email của bạn.", null));
     }
 }
