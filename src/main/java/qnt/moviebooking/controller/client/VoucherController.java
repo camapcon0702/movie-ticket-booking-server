@@ -13,7 +13,7 @@ import qnt.moviebooking.dto.ApiResponse;
 import qnt.moviebooking.dto.resource.VoucherResourceDto;
 import qnt.moviebooking.service.VoucherService;
 
-@RestController
+@RestController("ClientVoucherController")
 @RequestMapping("/v1.0/vouchers")
 @RequiredArgsConstructor
 public class VoucherController {

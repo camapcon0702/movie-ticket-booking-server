@@ -14,6 +14,7 @@ import qnt.moviebooking.dto.resource.SeatResourceDto;
 import qnt.moviebooking.entity.AuditoriumEntity;
 import qnt.moviebooking.entity.SeatEntity;
 import qnt.moviebooking.enums.SeatEnums;
+import qnt.moviebooking.repository.AuditoriumRepository;
 import qnt.moviebooking.repository.SeatRepository;
 
 @Service
@@ -21,14 +22,15 @@ import qnt.moviebooking.repository.SeatRepository;
 @RequiredArgsConstructor
 public class SeatService {
     private final SeatRepository seatRepository;
-    private final AuditoriumService auditoriumService;
+    private final AuditoriumRepository auditoriumRepository;
 
     @Transactional
     public List<SeatResourceDto> createSeats(SeatsRequestDto dto) {
 
         SeatEnums seatType = parseSeatType(dto.getSeatType());
 
-        AuditoriumEntity auditorium = auditoriumService.getAuditoriumEntityById(dto.getAuditoriumId());
+        AuditoriumEntity auditorium = auditoriumRepository.findById(dto.getAuditoriumId())
+                .orElseThrow(() -> new IllegalArgumentException("Auditorium not found"));
 
         List<SeatEntity> existingSeats = seatRepository
                 .findAllByAuditoriumIdAndRowChartAndSeatNumberInAndDeletedAtIsNull(
@@ -60,7 +62,8 @@ public class SeatService {
         SeatEnums seatType = parseSeatType(dto.getSeatType());
 
         if (!existingSeat.getAuditorium().getId().equals(dto.getAuditoriumId())) {
-            AuditoriumEntity newAuditorium = auditoriumService.getAuditoriumEntityById(dto.getAuditoriumId());
+            AuditoriumEntity newAuditorium = auditoriumRepository.findById(dto.getAuditoriumId())
+                    .orElseThrow(() -> new IllegalArgumentException("Auditorium not found"));
             existingSeat.setAuditorium(newAuditorium);
         }
 

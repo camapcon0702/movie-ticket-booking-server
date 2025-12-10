@@ -19,7 +19,7 @@ import qnt.moviebooking.dto.request.GenreRequestDto;
 import qnt.moviebooking.dto.resource.GenreResourceDto;
 import qnt.moviebooking.service.GenreService;
 
-@RestController
+@RestController("AdminGenreController")
 @RequiredArgsConstructor
 @RequestMapping("/admin/genres")
 public class GenreController {

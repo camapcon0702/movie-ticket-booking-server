@@ -20,7 +20,7 @@ import qnt.moviebooking.dto.request.VoucherRequestDto;
 import qnt.moviebooking.dto.resource.VoucherResourceDto;
 import qnt.moviebooking.service.VoucherService;
 
-@RestController
+@RestController("AdminVoucherController")
 @RequestMapping("/admin/vouchers")
 @RequiredArgsConstructor
 public class VocherController {

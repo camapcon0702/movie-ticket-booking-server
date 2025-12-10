@@ -13,7 +13,7 @@ import qnt.moviebooking.dto.ApiResponse;
 import qnt.moviebooking.dto.resource.ShowtimeResourceDto;
 import qnt.moviebooking.service.ShowtimeService;
 
-@RestController
+@RestController("ClientShowtimeController")
 @RequestMapping("v1.0/")
 @RequiredArgsConstructor
 public class ShowtimeController {
