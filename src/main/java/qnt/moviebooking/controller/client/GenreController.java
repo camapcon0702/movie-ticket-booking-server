@@ -12,7 +12,7 @@ import qnt.moviebooking.dto.ApiResponse;
 import qnt.moviebooking.dto.resource.GenreResourceDto;
 import qnt.moviebooking.service.GenreService;
 
-@RestController
+@RestController("ClientGenreController")
 @RequestMapping("/v1.0/genres")
 @RequiredArgsConstructor
 public class GenreController {

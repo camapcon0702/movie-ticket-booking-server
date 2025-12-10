@@ -10,7 +10,7 @@ import qnt.moviebooking.dto.ApiResponse;
 import qnt.moviebooking.dto.resource.UserResourceDto;
 import qnt.moviebooking.service.UserService;
 
-@RestController
+@RestController("AdminUserController")
 @RequestMapping("/admin/users")
 @RequiredArgsConstructor
 public class UserController {
