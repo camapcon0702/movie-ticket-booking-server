@@ -76,7 +76,7 @@ public class MovieService {
 
     public List<MovieResouresDto> getAllMoviesAdmin() {
         return movieRepository.findAllByDeletedAtIsNull()
-                .stream().map(this::mapToDto).collect(Collectors.toList());
+                .stream().map(this::mapToDto).toList();
     }
 
     public MovieResouresDto getMovieByIdAdmin(Long id) {
@@ -86,12 +86,12 @@ public class MovieService {
 
     public List<MovieResouresDto> searchMoviesByTitleAdmin(String keyword) {
         return movieRepository.findByTitleContainingIgnoreCaseAndDeletedAtIsNull(keyword)
-                .stream().map(this::mapToDto).collect(Collectors.toList());
+                .stream().map(this::mapToDto).toList();
     }
 
     public List<MovieResouresDto> getMoviesByGenreId(Long genreId) {
         return movieRepository.findDistinctByGenresIdAndDeletedAtIsNull(genreId)
-                .stream().map(this::mapToDto).collect(Collectors.toList());
+                .stream().map(this::mapToDto).toList();
     }
 
     private static final List<MovieEnums> USER_VISIBLE_STATUSES = Arrays.asList(
@@ -100,13 +100,13 @@ public class MovieService {
 
     public List<MovieResouresDto> getAllMoviesForUser() {
         return movieRepository.findAllByStatusInAndDeletedAtIsNull(USER_VISIBLE_STATUSES)
-                .stream().map(this::mapToDto).collect(Collectors.toList());
+                .stream().map(this::mapToDto).toList();
     }
 
     public List<MovieResouresDto> searchMoviesByTitleForUser(String keyword) {
         return movieRepository
                 .findByTitleContainingIgnoreCaseAndDeletedAtIsNullAndStatusIn(keyword, USER_VISIBLE_STATUSES)
-                .stream().map(this::mapToDto).collect(Collectors.toList());
+                .stream().map(this::mapToDto).toList();
     }
 
     public MovieResouresDto getMovieByIdForUser(Long id) {
