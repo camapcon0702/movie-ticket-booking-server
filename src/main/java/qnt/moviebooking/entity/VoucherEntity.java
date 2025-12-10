@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Builder.Default;
+
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -19,11 +21,14 @@ import java.time.LocalDateTime;
 public class VoucherEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private  Long id;
-    private  String code;
-    private  Integer discount_amount;
-    private  Double discount_percentage;
-    private LocalDateTime expiry_date;
+    private Long id;
+    @Column(unique = true)
+    private String code;
+    private Double discountAmount;
+    private Double discountPercentage;
+    private Double discountMax;
+    private LocalDateTime expiryDate;
+    private boolean active;
 
     @Column(updatable = false)
     @CreationTimestamp
