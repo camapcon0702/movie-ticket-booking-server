@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.request.RegisterRequestDto;
@@ -20,6 +21,7 @@ import qnt.moviebooking.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -44,9 +46,13 @@ public class UserService {
         return mapToDto(currentUser);
     }
 
-    public UserResourceDto getUserById(Long id) {
-        UserEntity user = userRepository.findById(id)
+    public UserEntity getUserEntityById(Long id) {
+        return userRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy người dùng với id: " + id));
+    }
+
+    public UserResourceDto getUserById(Long id) {
+        UserEntity user = getUserEntityById(id);
         return mapToDto(user);
     }
 
@@ -66,11 +72,6 @@ public class UserService {
         return userRepository.findByEmailAndDeletedAtIsNull(email).map(UserEntity::getIsActive).orElse(false);
     }
 
-    // Kiểm tra có tồn tại email này chưa kể cả bị xoá
-    public boolean isExistedUser(String email) {
-        return userRepository.existsByEmail(email);
-    }
-
     // Kiểm tra có tồn cái email này chưa (chỉ lấy nhưng user chưa bị xoá)
     public boolean isExistedUserNoDelete(String email) {
         return userRepository.existsByEmailAndDeletedAtIsNull(email);
@@ -81,6 +82,7 @@ public class UserService {
         return userRepository.existsByEmailAndDeletedAtNotNull(email);
     }
 
+    @Transactional
     public void activateUser(String email, String code) {
         UserEntity user = getUserByEmailNoDelete(email);
 
@@ -109,6 +111,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public UserResourceDto createUser(RegisterRequestDto request, RoleEntity role, String code,
             LocalDateTime expiresAt) {
 
@@ -148,6 +151,7 @@ public class UserService {
         return mapToDto(user);
     }
 
+    @Transactional
     public UserResourceDto updateUser(String email, UserRequestDto request) {
         UserEntity user = getCurrentUser();
 
@@ -163,6 +167,7 @@ public class UserService {
         return mapToDto(user);
     }
 
+    @Transactional
     public void deleteUser(String email) {
         if (!isExistedUserNoDelete(email)) {
             throw new RuntimeException("Không tìm thấy người dùng với email: " + email);
@@ -173,6 +178,21 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
+    public void rollbackDeletedUser() {
+        List<UserEntity> users = userRepository.findAllByDeletedAtAfter(LocalDateTime.now().minusMinutes(10));
+
+        if (users.isEmpty()) {
+            throw new IllegalArgumentException("Không có tài khoản nào để khôi phục!");
+        }
+
+        for (UserEntity user : users) {
+            user.setDeletedAt(null);
+            userRepository.save(user);
+        }
+    }
+
+    @Transactional
     public UserEntity updateUserForce(UserEntity user) {
         return userRepository.save(user);
     }

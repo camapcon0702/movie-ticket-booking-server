@@ -1,6 +1,5 @@
 package qnt.moviebooking.entity;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,20 +7,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import qnt.moviebooking.enums.BookingEnums;
 import qnt.moviebooking.enums.PaymentEnums;
-
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name="tbl_payments")
+@Table(name = "tbl_payments")
 public class PaymentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

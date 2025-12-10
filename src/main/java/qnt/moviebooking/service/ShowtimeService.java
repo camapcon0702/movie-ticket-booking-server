@@ -1,10 +1,12 @@
 package qnt.moviebooking.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.request.ShowtimeRequestDto;
 import qnt.moviebooking.dto.resource.ShowtimeResourceDto;
 import qnt.moviebooking.entity.AuditoriumEntity;
-import qnt.moviebooking.entity.GenreEntity;
 import qnt.moviebooking.entity.MovieEntity;
 import qnt.moviebooking.entity.ShowtimeEntity;
 import qnt.moviebooking.repository.AuditoriumRepository;
@@ -12,56 +14,53 @@ import qnt.moviebooking.repository.MovieRepository;
 import qnt.moviebooking.repository.ShowtimeRepository;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ShowtimeService {
     private final ShowtimeRepository showtimeRepository;
     private final AuditoriumRepository auditoriumRepository;
     private final MovieRepository movieRepository;
-    public ShowtimeService(ShowtimeRepository showtimeRepository, AuditoriumRepository auditoriumRepository, MovieRepository movieRepository) {
-        this.showtimeRepository = showtimeRepository;
-        this.auditoriumRepository = auditoriumRepository;
-        this.movieRepository = movieRepository;
-    }
 
-    public List<ShowtimeResourceDto> createShowtimes(ShowtimeRequestDto showtimeRequestDto){
+    @Transactional
+    public List<ShowtimeResourceDto> createShowtimes(ShowtimeRequestDto showtimeRequestDto) {
         MovieEntity movie = movieRepository.findByIdAndDeletedAtIsNull(showtimeRequestDto.getMovieId())
                 .orElseThrow(() -> new RuntimeException("Không thấy movie"));
 
-        AuditoriumEntity auditorium = auditoriumRepository.findByIdAndDeletedAtIsNull(showtimeRequestDto.getAuditoriumId())
+        AuditoriumEntity auditorium = auditoriumRepository
+                .findByIdAndDeletedAtIsNull(showtimeRequestDto.getAuditoriumId())
                 .orElseThrow(() -> new RuntimeException("Không thấy Auditorium"));
 
         validateShowtimeConflicts(showtimeRequestDto.getStartTimes(), auditorium.getId());
 
-        List <ShowtimeEntity> showtimes = mapToEnity(showtimeRequestDto,movie,auditorium);
+        List<ShowtimeEntity> showtimes = mapToEnity(showtimeRequestDto, movie, auditorium);
 
         List<ShowtimeEntity> saved = showtimeRepository.saveAll(showtimes);
 
         return mapToGroupedDto(saved);
     }
 
-    public List<ShowtimeResourceDto> selectShowtimeByMovie (Long movieId){
-       List<ShowtimeEntity> showtimes = showtimeRepository.findByMovieIdAndDeletedAtIsNotNull(movieId);
+    public List<ShowtimeResourceDto> selectShowtimeByMovie(Long movieId) {
+        List<ShowtimeEntity> showtimes = showtimeRepository.findByMovieIdAndDeletedAtIsNotNull(movieId);
 
-       if (showtimes.isEmpty()){
-           throw new RuntimeException("Không có suất  chiếu nào");
-       }
+        if (showtimes.isEmpty()) {
+            throw new RuntimeException("Không có suất  chiếu nào");
+        }
 
-       return mapToGroupedDto(showtimes);
+        return mapToGroupedDto(showtimes);
     }
 
-    public ShowtimeResourceDto selectShowtimeDetail (Long showtimeId)
-    {
-        ShowtimeEntity showtime =showtimeRepository.findById(showtimeId)
-                .orElseThrow(() -> new RuntimeException("Không thấy suất chiếu") );
+    public ShowtimeResourceDto selectShowtimeDetail(Long showtimeId) {
+        ShowtimeEntity showtime = showtimeRepository.findById(showtimeId)
+                .orElseThrow(() -> new RuntimeException("Không thấy suất chiếu"));
         return mapToSingleDto(showtime);
     }
 
-    public ShowtimeResourceDto updateShowtime(Long showtimeId,ShowtimeRequestDto dto)
-    {
+    @Transactional
+    public ShowtimeResourceDto updateShowtime(Long showtimeId, ShowtimeRequestDto dto) {
         ShowtimeEntity existingShowtime = showtimeRepository.findByIdAndDeletedAtIsNull(showtimeId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy suất chiếu"));
 
@@ -87,23 +86,23 @@ public class ShowtimeService {
 
     }
 
-    public void softDeleteShowtime (Long showtimeId)
-    {
-          ShowtimeEntity showtime = showtimeRepository.findByIdAndDeletedAtIsNull(showtimeId)
-                  .orElseThrow(() -> new RuntimeException("Không tìm thấy xuất chiếu"));
+    @Transactional
+    public void softDeleteShowtime(Long showtimeId) {
+        ShowtimeEntity showtime = showtimeRepository.findByIdAndDeletedAtIsNull(showtimeId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy xuất chiếu"));
 
-          showtime.setDeletedAt(LocalDateTime.now());
+        showtime.setDeletedAt(LocalDateTime.now());
 
-          showtimeRepository.save(showtime);
+        showtimeRepository.save(showtime);
 
     }
 
-    public void  rollBackDeletedShowtimes()
-    {
+    @Transactional
+    public void rollBackDeletedShowtimes() {
         List<ShowtimeEntity> deletedShowtime = showtimeRepository
                 .findAllByDeletedAtAfter(LocalDateTime.now().minusMinutes(10));
 
-        if (showtimeRepository.count()==0) {
+        if (showtimeRepository.count() == 0) {
             throw new IllegalArgumentException("Không có showtime nào để khôi phục!");
         }
 
@@ -114,23 +113,18 @@ public class ShowtimeService {
         showtimeRepository.saveAll(deletedShowtime);
     }
 
-
-
-    /* ===================== COMMON ===================== */
-    private List<ShowtimeEntity> mapToEnity(ShowtimeRequestDto Dto, MovieEntity movie, AuditoriumEntity auditorium)
-    {
+    private List<ShowtimeEntity> mapToEnity(ShowtimeRequestDto Dto, MovieEntity movie, AuditoriumEntity auditorium) {
         return Dto.getStartTimes().stream()
                 .map(time -> ShowtimeEntity.builder()
                         .startTime(time)
                         .basePrice(Dto.getBasePrice())
                         .movie(movie)
                         .auditorium(auditorium)
-                        .build()
-                )
+                        .build())
                 .toList();
     }
 
-    private  List<ShowtimeResourceDto> mapToGroupedDto(List<ShowtimeEntity> entities) {
+    private List<ShowtimeResourceDto> mapToGroupedDto(List<ShowtimeEntity> entities) {
         return entities.stream()
                 .map(entity -> ShowtimeResourceDto.builder()
                         .id(entity.getId())
@@ -155,19 +149,16 @@ public class ShowtimeService {
                 .updatedAt(entity.getUpdatedAt())
                 .build();
     }
-    private void validateShowtimeConflicts(List<LocalDateTime> startTimes, Long auditoriumId){
+
+    private void validateShowtimeConflicts(List<LocalDateTime> startTimes, Long auditoriumId) {
 
         List<ShowtimeEntity> conflicts = showtimeRepository
-                .findByAuditoriumIdAndStartTimeIn(auditoriumId,startTimes);
-        if(!conflicts.isEmpty()){
+                .findByAuditoriumIdAndStartTimeIn(auditoriumId, startTimes);
+        if (!conflicts.isEmpty()) {
             String conflictsTime = conflicts.stream()
                     .map(s -> s.getStartTime().toString())
                     .collect(Collectors.joining(", "));
-            throw new RuntimeException("Thời gian bị trùng với phim khác"+conflictsTime);
+            throw new RuntimeException("Thời gian bị trùng với phim khác" + conflictsTime);
         }
     }
-
-
-
-
 }

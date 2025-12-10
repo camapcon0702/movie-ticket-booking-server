@@ -1,4 +1,5 @@
-package qnt.moviebooking.controller;
+package qnt.moviebooking.controller.client;
+
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,8 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import qnt.moviebooking.service.PaymentService;
 
 import java.util.Map;
-
-@RestController
+@RestController("paymentClientController")
 @RequiredArgsConstructor
 @RequestMapping
 @Slf4j

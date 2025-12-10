@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.request.GenreRequestDto;
@@ -13,9 +14,11 @@ import qnt.moviebooking.repository.GenreRepository;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class GenreService {
     private final GenreRepository genreRepository;
 
+    @Transactional
     public GenreResourceDto createGenre(GenreRequestDto genreRequestDto) {
         if (genreRepository.existsByNameAndDeletedAtIsNull(genreRequestDto.getName())) {
             throw new IllegalArgumentException("Thể loại phim đã tồn tại!");
@@ -35,9 +38,13 @@ public class GenreService {
                 .toList();
     }
 
-    public GenreResourceDto getGenreById(Long id) {
-        GenreEntity genreEntity = genreRepository.findByIdAndDeletedAtIsNull(id)
+    public GenreEntity getGenreEntityById(Long id) {
+        return genreRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thể loại phim với ID: " + id));
+    }
+
+    public GenreResourceDto getGenreById(Long id) {
+        GenreEntity genreEntity = getGenreEntityById(id);
 
         return mapToDto(genreEntity);
     }
@@ -49,9 +56,9 @@ public class GenreService {
         return mapToDto(genreEntity);
     }
 
+    @Transactional
     public GenreResourceDto updateGenre(Long id, GenreRequestDto genreRequestDto) {
-        GenreEntity genreEntity = genreRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thể loại phim với ID: " + id));
+        GenreEntity genreEntity = getGenreEntityById(id);
 
         if (!genreEntity.getName().equals(genreRequestDto.getName()) &&
                 genreRepository.existsByNameAndDeletedAtIsNull(genreRequestDto.getName())) {
@@ -66,14 +73,15 @@ public class GenreService {
         return mapToDto(updatedEntity);
     }
 
+    @Transactional
     public void deleteGenre(Long id) {
-        GenreEntity genreEntity = genreRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thể loại phim với ID: " + id));
+        GenreEntity genreEntity = getGenreEntityById(id);
 
         genreEntity.setDeletedAt(LocalDateTime.now());
         genreRepository.save(genreEntity);
     }
 
+    @Transactional
     public void rollBackDeletedGenres() {
         List<GenreEntity> deletedGenres = genreRepository
                 .findAllByDeletedAtAfter(LocalDateTime.now().minusMinutes(10));

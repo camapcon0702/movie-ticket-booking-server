@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 public class EmailService {
     private final JavaMailSender mailSender;
 
-    @Value("${MAIL_SENDER}")
+    @Value("${mail.sender}")
     private String senderEmail;
 
     public void sendEmail(String toEmail, String subject, String body) {

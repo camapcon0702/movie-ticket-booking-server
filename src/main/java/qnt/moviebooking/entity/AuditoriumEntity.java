@@ -1,15 +1,18 @@
 package qnt.moviebooking.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,4 +36,7 @@ public class AuditoriumEntity {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
+
+    @OneToMany(mappedBy = "auditorium", fetch = FetchType.LAZY)
+    private List<SeatEntity> seats;
 }

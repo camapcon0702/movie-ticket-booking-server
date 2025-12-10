@@ -7,6 +7,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.request.LoginRequestDto;
@@ -14,15 +15,15 @@ import qnt.moviebooking.dto.request.RegisterRequestDto;
 import qnt.moviebooking.dto.resource.UserResourceDto;
 import qnt.moviebooking.entity.RoleEntity;
 import qnt.moviebooking.entity.UserEntity;
-import qnt.moviebooking.repository.RoleRepository;
 import qnt.moviebooking.util.JwtUtil;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AuthService {
     private final UserService userService;
     private final EmailService emailService;
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
@@ -55,14 +56,14 @@ public class AuthService {
         emailService.sendEmail(email, subject, body);
     }
 
+    @Transactional
     public UserResourceDto register(RegisterRequestDto request) {
 
         if (userService.isExistedUserNoDelete(request.getEmail())) {
             throw new RuntimeException("Email đã được đăng ký!");
         }
 
-        RoleEntity defaultRole = roleRepository.findByRoleName("USER")
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy vai trò mặc định!"));
+        RoleEntity defaultRole = roleService.getRoleEntityByName("USER");
 
         String code = generateVerificationCode();
         LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(EXPIRATION_MINUTES);
@@ -74,6 +75,7 @@ public class AuthService {
         return savedUser;
     }
 
+    @Transactional
     public void resendVerificationCode(String email) {
         UserEntity user = userService.getUserByEmail(email);
 

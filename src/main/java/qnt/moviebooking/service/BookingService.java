@@ -77,7 +77,7 @@ public class BookingService {
         List<TicketEntity> listTicket = new ArrayList<>();
         for (SeatEntity seatEntity : seatEntities) {
             total = total.add(seatEntity.getPrice());
-            String seatName = seatEntity.getRow_char() + seatEntity.getSeat_number();
+            String seatName = seatEntity.getRowChart() + seatEntity.getSeatNumber();
             String audiName = seatEntity.getAuditorium().getName();
             listTicket.add(
                     createTiket(
@@ -162,7 +162,7 @@ public class BookingService {
                 List<TicketEntity> newTickets = new ArrayList<>();
 
                 for (SeatEntity seat : newSeats) {
-                    String seatName = seat.getRow_char() + seat.getSeat_number();
+                    String seatName = seat.getRowChart() + seat.getSeatNumber();
                     String audiName = seat.getAuditorium().getName();
 
                     TicketEntity ticket = createTiket(booking, seat, seatName, audiName);

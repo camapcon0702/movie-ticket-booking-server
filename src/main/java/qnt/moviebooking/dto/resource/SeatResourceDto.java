@@ -1,23 +1,23 @@
 package qnt.moviebooking.dto.resource;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class ShowtimeResourceDto {
+public class SeatResourceDto {
     private Long id;
-    private Long movieId;
+    private String rowChart;
+    private String seatNumber;
+    private String seatType;
+    private boolean status;
     private Long auditoriumId;
-    private BigDecimal basePrice;
-    private LocalDateTime startTimes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

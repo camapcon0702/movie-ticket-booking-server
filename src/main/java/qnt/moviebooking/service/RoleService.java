@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.request.RoleRequestDto;
@@ -13,10 +14,12 @@ import qnt.moviebooking.repository.RoleRepository;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class RoleService {
     private final RoleRepository roleRepository;
 
     // Tạo mới role
+    @Transactional
     public RoleResourceDto createRole(RoleRequestDto request) {
         if (roleRepository.existsByRoleName(request.getName())) {
             throw new IllegalArgumentException("Role đã tồn tại: " + request.getName());
@@ -37,18 +40,27 @@ public class RoleService {
                 .collect(Collectors.toList());
     }
 
+    public RoleEntity getRoleEntityById(Long id) {
+        return roleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Role không tồn tại với id: " + id));
+    }
+
+    public RoleEntity getRoleEntityByName(String name) {
+        return roleRepository.findByRoleName(name)
+                .orElseThrow(() -> new IllegalArgumentException("Role không tồn tại với tên: " + name));
+    }
+
     // Lấy role theo ID
     public RoleResourceDto getRoleById(Long id) {
-        RoleEntity roleEntity = roleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Role không tồn tại với id: " + id));
+        RoleEntity roleEntity = getRoleEntityById(id);
 
         return mapToDto(roleEntity);
     }
 
     // Cập nhật role
+    @Transactional
     public RoleResourceDto updateRole(Long id, RoleRequestDto request) {
-        RoleEntity existingRole = roleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Role không tồn tại với id: " + id));
+        RoleEntity existingRole = getRoleEntityById(id);
 
         existingRole.setRoleName(request.getName());
         existingRole.setDescription(request.getDescription());

@@ -1,32 +1,47 @@
 package qnt.moviebooking.entity;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import qnt.moviebooking.enums.SeatEnums;
-
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
-@Entity
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
 @Builder
 @Table(name = "tbl_seats")
 public class SeatEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String row_char;
-    private int seat_number;
+    private String rowChart;
+    private String seatNumber;
     private BigDecimal price;
-    private SeatEnums type;
-
+    private SeatEnums seatType;
+    @Column(nullable = true)
+    private boolean status;
+    @Column(updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
     @UpdateTimestamp
