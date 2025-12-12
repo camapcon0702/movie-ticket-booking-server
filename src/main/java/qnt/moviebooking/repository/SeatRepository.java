@@ -1,12 +1,9 @@
 package qnt.moviebooking.repository;
-
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
 import qnt.moviebooking.entity.SeatEntity;
+import java.util.List;
+import java.util.Optional;
 import java.time.LocalDateTime;
 
 @Repository
@@ -27,3 +24,4 @@ public interface SeatRepository extends JpaRepository<SeatEntity, Long> {
 
     List<SeatEntity> findAllByDeletedAtAfter(LocalDateTime time);
 }
+

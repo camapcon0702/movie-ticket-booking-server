@@ -14,7 +14,11 @@ import qnt.moviebooking.dto.ApiResponse;
 import qnt.moviebooking.dto.resource.SeatResourceDto;
 import qnt.moviebooking.service.SeatService;
 
+<<<<<<< HEAD
+@RestController("seatClientController")
+=======
 @RestController("ClientSeatController")
+>>>>>>> 2c10bc1e2b7f2469448d9beaf8f3dac5aa3aa5f5
 @RequestMapping("v1.0/seats")
 @RequiredArgsConstructor
 public class SeatController {

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -20,6 +21,13 @@ import java.time.LocalDateTime;
 public class VoucherEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+<<<<<<< HEAD
+    private  Long id;
+    private  String code;
+    private BigDecimal discount_amount;
+    private  Double discount_percentage;
+    private LocalDateTime expiry_date;
+=======
     private Long id;
     @Column(unique = true)
     private String code;
@@ -28,6 +36,7 @@ public class VoucherEntity {
     private Double discountMax;
     private LocalDateTime expiryDate;
     private boolean active;
+>>>>>>> 2c10bc1e2b7f2469448d9beaf8f3dac5aa3aa5f5
 
     @Column(updatable = false)
     @CreationTimestamp

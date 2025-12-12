@@ -14,7 +14,11 @@ import qnt.moviebooking.dto.ApiResponse;
 import qnt.moviebooking.dto.resource.MovieResouresDto;
 import qnt.moviebooking.service.MovieService;
 
+<<<<<<< HEAD
+@RestController("movieClientController")
+=======
 @RestController("ClientMovieController")
+>>>>>>> 2c10bc1e2b7f2469448d9beaf8f3dac5aa3aa5f5
 @RequestMapping("/v1.0/movies")
 @RequiredArgsConstructor
 public class MovieController {

@@ -3,8 +3,8 @@ package qnt.moviebooking.enums;
 public enum PaymentEnums {
     PENDING,
     PAID,
+    FAILED,
     CANCELLED,
-    COMPLETED,
     EXPIRED,
     REFUNDED,
     SUCCESS,

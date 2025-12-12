@@ -14,7 +14,11 @@ import qnt.moviebooking.dto.request.UserRequestDto;
 import qnt.moviebooking.dto.resource.UserResourceDto;
 import qnt.moviebooking.service.UserService;
 
+<<<<<<< HEAD
+@RestController("userClientController")
+=======
 @RestController("ClientUserController")
+>>>>>>> 2c10bc1e2b7f2469448d9beaf8f3dac5aa3aa5f5
 @RequiredArgsConstructor
 @RequestMapping("v1.0/users")
 public class UserController {

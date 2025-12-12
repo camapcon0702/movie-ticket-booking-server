@@ -1,5 +1,7 @@
 package qnt.moviebooking.entity;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -14,11 +16,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import qnt.moviebooking.enums.SeatEnums;
+import java.math.BigDecimal;
+
 
 @Data
 @NoArgsConstructor
@@ -32,6 +37,7 @@ public class SeatEntity {
     private Long id;
     private String rowChart;
     private String seatNumber;
+    private BigDecimal price;
     private SeatEnums seatType;
     @Column(nullable = true)
     private boolean status;
