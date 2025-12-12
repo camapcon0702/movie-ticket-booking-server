@@ -12,7 +12,7 @@ import qnt.moviebooking.dto.request.AuditoryumRequestDto;
 import qnt.moviebooking.dto.resource.AuditoriumResourceDto;
 import qnt.moviebooking.service.AuditoriumService;
 
-@RestController
+@RestController("AdminAuditoriumController")
 @RequiredArgsConstructor
 @RequestMapping("/admin/auditoriums")
 public class AuditoriumController {

@@ -13,7 +13,7 @@ import qnt.moviebooking.dto.request.SeatsRequestDto;
 import qnt.moviebooking.dto.resource.SeatResourceDto;
 import qnt.moviebooking.service.SeatService;
 
-@RestController
+@RestController("AdminSeatController")
 @RequiredArgsConstructor
 @RequestMapping("/admin/seats")
 public class SeatController {

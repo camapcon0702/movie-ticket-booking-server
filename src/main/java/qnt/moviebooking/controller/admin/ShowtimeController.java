@@ -10,7 +10,7 @@ import qnt.moviebooking.service.ShowtimeService;
 
 import java.util.List;
 
-@RestController
+@RestController("AdminShowtimeController")
 @RequiredArgsConstructor
 @RequestMapping("/admin/showtimes")
 public class ShowtimeController {
