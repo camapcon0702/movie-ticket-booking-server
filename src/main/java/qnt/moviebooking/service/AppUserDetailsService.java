@@ -21,10 +21,11 @@ public class AppUserDetailsService implements UserDetailsService {
                 UserEntity existingUser = userRepository.findByEmailFetchRole(email)
                                 .orElseThrow(() -> new UsernameNotFoundException(
                                                 "Không tồn tại tài khoản với email: " + email));
+
                 return User.builder()
                                 .username(existingUser.getEmail())
                                 .password(existingUser.getPassword())
-                                .roles(existingUser.getRole().getRoleName())
+                                // .roles(existingUser.getRole().getRoleName())
                                 .authorities(new SimpleGrantedAuthority("ROLE_" + existingUser.getRole()
                                                 .getRoleName()))
                                 .build();

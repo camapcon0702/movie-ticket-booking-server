@@ -1,5 +1,6 @@
 package qnt.moviebooking.controller.client;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -14,11 +15,7 @@ import qnt.moviebooking.dto.request.UserRequestDto;
 import qnt.moviebooking.dto.resource.UserResourceDto;
 import qnt.moviebooking.service.UserService;
 
-<<<<<<< HEAD
-@RestController("userClientController")
-=======
 @RestController("ClientUserController")
->>>>>>> 2c10bc1e2b7f2469448d9beaf8f3dac5aa3aa5f5
 @RequiredArgsConstructor
 @RequestMapping("v1.0/users")
 public class UserController {
@@ -29,7 +26,7 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResourceDto>> getPublicUser() {
         UserResourceDto user = userService.getPublicUser(null);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Thông tin tài khoản!", user));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Thông tin tài khoản!", user));
     }
 
     @PutMapping
@@ -38,6 +35,6 @@ public class UserController {
 
         UserResourceDto user = userService.updateUser(email, request);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Cập nhật tài khoản thành công!", user));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Cập nhật tài khoản thành công!", user));
     }
 }

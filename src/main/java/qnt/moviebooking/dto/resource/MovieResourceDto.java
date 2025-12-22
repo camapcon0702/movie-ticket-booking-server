@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MovieResouresDto {
+public class MovieResourceDto {
     private Long id;
     private String title;
     private String description;

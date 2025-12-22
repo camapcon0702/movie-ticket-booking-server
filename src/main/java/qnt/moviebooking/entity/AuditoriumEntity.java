@@ -6,6 +6,8 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -29,14 +31,23 @@ public class AuditoriumEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true, length = 50)
     private String name;
+
     @Column(updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
+
     @UpdateTimestamp
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "auditorium", fetch = FetchType.LAZY)
     private List<SeatEntity> seats;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "auditorium", fetch = FetchType.LAZY)
+    private List<ShowtimeEntity> showtimes;
 }

@@ -19,11 +19,7 @@ import qnt.moviebooking.dto.request.GenreRequestDto;
 import qnt.moviebooking.dto.resource.GenreResourceDto;
 import qnt.moviebooking.service.GenreService;
 
-<<<<<<< HEAD
-@RestController("genreAdminController")
-=======
 @RestController("AdminGenreController")
->>>>>>> 2c10bc1e2b7f2469448d9beaf8f3dac5aa3aa5f5
 @RequiredArgsConstructor
 @RequestMapping("/admin/genres")
 public class GenreController {
@@ -36,7 +32,7 @@ public class GenreController {
         GenreResourceDto createdGenre = genreService.createGenre(request);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(true, "Tạo thể loại phim thành công", createdGenre));
+                .body(new ApiResponse<>(HttpStatus.CREATED.value(), "Tạo thể loại phim thành công", createdGenre));
     }
 
     @PutMapping("/{id}")
@@ -46,7 +42,7 @@ public class GenreController {
         GenreResourceDto updatedGenre = genreService.updateGenre(id, request);
 
         return ResponseEntity.ok()
-                .body(new ApiResponse<>(true, "Cập nhật thể loại phim thành công", updatedGenre));
+                .body(new ApiResponse<>(HttpStatus.OK.value(), "Cập nhật thể loại phim thành công", updatedGenre));
     }
 
     @GetMapping("/{id}")
@@ -55,7 +51,7 @@ public class GenreController {
         GenreResourceDto genre = genreService.getGenreById(id);
 
         return ResponseEntity.ok()
-                .body(new ApiResponse<>(true, "Lấy thể loại phim thành công", genre));
+                .body(new ApiResponse<>(HttpStatus.OK.value(), "Lấy thể loại phim thành công", genre));
     }
 
     @GetMapping
@@ -64,7 +60,7 @@ public class GenreController {
         List<GenreResourceDto> genres = genreService.getAllGenres();
 
         return ResponseEntity.ok()
-                .body(new ApiResponse<>(true, "Lấy danh sách thể loại phim thành công", genres));
+                .body(new ApiResponse<>(HttpStatus.OK.value(), "Lấy danh sách thể loại phim thành công", genres));
     }
 
     @GetMapping("/name/{name}")
@@ -73,7 +69,7 @@ public class GenreController {
         GenreResourceDto genre = genreService.getGenreByName(name);
 
         return ResponseEntity.ok()
-                .body(new ApiResponse<>(true, "Lấy thể loại phim thành công", genre));
+                .body(new ApiResponse<>(HttpStatus.OK.value(), "Lấy thể loại phim thành công", genre));
     }
 
     @DeleteMapping("/{id}")
@@ -82,7 +78,7 @@ public class GenreController {
         genreService.deleteGenre(id);
 
         return ResponseEntity.ok()
-                .body(new ApiResponse<>(true, "Xóa thể loại phim thành công", null));
+                .body(new ApiResponse<>(HttpStatus.OK.value(), "Xóa thể loại phim thành công", null));
     }
 
     @PostMapping("/rollback-deleted")
@@ -91,6 +87,6 @@ public class GenreController {
         genreService.rollBackDeletedGenres();
 
         return ResponseEntity.ok()
-                .body(new ApiResponse<>(true, "Khôi phục thể loại phim đã xóa thành công", null));
+                .body(new ApiResponse<>(HttpStatus.OK.value(), "Khôi phục thể loại phim đã xóa thành công", null));
     }
 }

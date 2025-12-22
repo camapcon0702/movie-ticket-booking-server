@@ -2,6 +2,7 @@ package qnt.moviebooking.controller.admin;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,7 @@ public class UserController {
 
         List<UserResourceDto> users = userService.getAllUserNoDelete();
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Danh sách tài khoản!", users));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Danh sách tài khoản!", users));
     }
 
     @DeleteMapping
@@ -30,7 +31,7 @@ public class UserController {
 
         userService.deleteUser(email);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Xoá tài khoản thành công!", null));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Xoá tài khoản thành công!", null));
     }
 
     @PostMapping("/rollback-deleted")
@@ -38,7 +39,7 @@ public class UserController {
 
         userService.rollbackDeletedUser();
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Khôi phục tài khoản thành công!", null));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Khôi phục tài khoản thành công!", null));
     }
 
     @GetMapping("/{id}")
@@ -46,6 +47,6 @@ public class UserController {
 
         UserResourceDto user = userService.getUserById(id);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Thông tin tài khoản!", user));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Thông tin tài khoản!", user));
     }
 }

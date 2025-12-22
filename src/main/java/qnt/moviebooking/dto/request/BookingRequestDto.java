@@ -1,4 +1,4 @@
-package qnt.moviebooking.dto.request.Booking;
+package qnt.moviebooking.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,9 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class BookingRequestDto {
-    private Long showtime_id;
-    private Long user_id;
-    private Long voucher_id;
-    private Long[] serviceids;
-    private Long[] seatids;
+    private Long showtimeId;
+    private Long voucherId;
+    private Long[] seatId;
 }

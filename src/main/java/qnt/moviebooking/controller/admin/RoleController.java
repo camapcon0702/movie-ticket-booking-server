@@ -2,6 +2,7 @@ package qnt.moviebooking.controller.admin;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,7 +30,7 @@ public class RoleController {
 
         RoleResourceDto createdRole = roleService.createRole(request);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Tạo role thành công!", createdRole));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.CREATED.value(), "Tạo role thành công!", createdRole));
     }
 
     @GetMapping
@@ -37,7 +38,7 @@ public class RoleController {
 
         List<RoleResourceDto> roles = roleService.getAllRoles();
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách role thành công!", roles));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Lấy danh sách role thành công!", roles));
     }
 
     @GetMapping("/{id}")
@@ -45,7 +46,7 @@ public class RoleController {
 
         RoleResourceDto role = roleService.getRoleById(id);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy thông tin role thành công!", role));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Lấy thông tin role thành công!", role));
     }
 
     @PutMapping("/{id}")
@@ -54,6 +55,6 @@ public class RoleController {
 
         RoleResourceDto updatedRole = roleService.updateRole(id, request);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Cập nhật role thành công!", updatedRole));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Cập nhật role thành công!", updatedRole));
     }
 }

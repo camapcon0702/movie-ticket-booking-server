@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.request.RoleRequestDto;
 import qnt.moviebooking.dto.resource.RoleResourceDto;
 import qnt.moviebooking.entity.RoleEntity;
+import qnt.moviebooking.exception.ExistException;
+import qnt.moviebooking.exception.NotFoundException;
 import qnt.moviebooking.repository.RoleRepository;
 
 @Service
@@ -22,7 +24,7 @@ public class RoleService {
     @Transactional
     public RoleResourceDto createRole(RoleRequestDto request) {
         if (roleRepository.existsByRoleName(request.getName())) {
-            throw new IllegalArgumentException("Role đã tồn tại: " + request.getName());
+            throw new ExistException("Role đã tồn tại: " + request.getName());
         }
 
         RoleEntity roleEntity = mapToEntity(request);
@@ -42,12 +44,12 @@ public class RoleService {
 
     public RoleEntity getRoleEntityById(Long id) {
         return roleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Role không tồn tại với id: " + id));
+                .orElseThrow(() -> new NotFoundException("Role không tồn tại với id: " + id));
     }
 
     public RoleEntity getRoleEntityByName(String name) {
         return roleRepository.findByRoleName(name)
-                .orElseThrow(() -> new IllegalArgumentException("Role không tồn tại với tên: " + name));
+                .orElseThrow(() -> new NotFoundException("Role không tồn tại với tên: " + name));
     }
 
     // Lấy role theo ID

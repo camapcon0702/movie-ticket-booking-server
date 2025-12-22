@@ -13,5 +13,5 @@ public class SeatRequestDto {
     private Long auditoriumId;
     private String rowChart;
     private String seatNumber;
-    private String seatType;
+    private Long seatPriceId;
 }

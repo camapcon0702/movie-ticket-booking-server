@@ -7,5 +7,4 @@ public enum BookingEnums {
     SUCCESS,
     REFUNDED,
     ARCHIVED,
-
 }

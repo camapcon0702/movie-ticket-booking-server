@@ -26,10 +26,12 @@ public class PaymentService {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public String createMomoPayment(Long bookingId) {
-        BookingEntity booking = bookingRepository.findByIdAndDeletedAtIsNullAndStatus(bookingId, BookingEnums.PENDING)
+        BookingEntity booking = bookingRepository.findByIdAndDeletedAtIsNullAndStatus(bookingId,
+                BookingEnums.PENDING)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-        String orderId = "Momo_" + booking.getId() + "_" + System.currentTimeMillis();
+        String orderId = "Momo_" + booking.getId() + "_" +
+                System.currentTimeMillis();
 
         Map<String, Long> extra = Map.of("bookingId", booking.getId());
 
@@ -43,7 +45,7 @@ public class PaymentService {
 
         PaymentEntity payment = PaymentEntity.builder()
                 .booking(booking)
-                .amount(booking.getTotal_amount())
+                .amount(booking.getTotalAmount())
                 .method("MOMO")
                 .orderId(orderId)
                 .extraData(extraData)
@@ -52,15 +54,15 @@ public class PaymentService {
                 .build();
         paymentRepository.save(payment);
 
-        log.info("🔵 Tạo payment: orderId={}, amount={}", orderId, booking.getTotal_amount());
+        log.info("🔵 Tạo payment: orderId={}, amount={}", orderId,
+                booking.getTotalAmount());
 
         String payUrl = momoService.createPayment(
                 payment.getAmount().longValueExact(),
                 orderId,
                 "Thanh toan ve phim - Booking #" + booking.getId(), // Bỏ dấu tiếng Việt
                 "captureWallet",
-                extraData
-        ).getPayUrl();
+                extraData).getPayUrl();
 
         return payUrl;
     }
@@ -97,35 +99,20 @@ public class PaymentService {
 
     public Integer createpaymentOffline(Long bookingId) {
         try {
-            BookingEntity booking = bookingRepository.findByIdAndDeletedAtIsNullAndStatus(bookingId, BookingEnums.PENDING)
+            BookingEntity booking = bookingRepository
+                    .findByIdAndDeletedAtIsNullAndStatus(bookingId, BookingEnums.PENDING)
                     .orElseThrow(() -> new RuntimeException("Booking not found"));
             PaymentEntity payment = PaymentEntity.builder()
                     .booking(booking)
-                    .amount(booking.getTotal_amount())
+                    .amount(booking.getTotalAmount())
                     .method("CASH") // tiền mặt
                     .status(PaymentEnums.SUCCESS)
                     .build();
             paymentRepository.save(payment);
 
-            return  0;
+            return 0;
+        } catch (Exception e) {
+            return 1;
         }
-        catch (Exception e) {
-            return  1;
-        }
-
     }
-
-
-//    public void deleteSoft(long idpayment)
-//    {
-//        PaymentEntity paymentEntity = paymentRepository.findByOrderIdAndDeletedAtIsNull(idpayment)
-//                .orElse(() -> new RuntimeException("không thấy payment"));
-//
-//        paymentEntity.getDeletedAt(LocalDateTime.now());
-//        paymentRepository.save(paymentEntity);
-//    }
-
-
-
-
 }

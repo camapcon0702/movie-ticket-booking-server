@@ -1,21 +1,21 @@
 package qnt.moviebooking.dto.resource;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import qnt.moviebooking.enums.TicketEnums;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class TicketResourceDto {
-    Long id;
+public class SeatPriceResourceDto {
+    private Long id;
+    private String seatType;
     private BigDecimal price;
-    private String seatName;
-    private String auditoriumName;
-    private TicketEnums status;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

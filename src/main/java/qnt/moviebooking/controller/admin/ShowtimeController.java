@@ -1,53 +1,73 @@
 package qnt.moviebooking.controller.admin;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import qnt.moviebooking.dto.ApiResponse;
+import qnt.moviebooking.dto.request.ShowtimeBulkRequestDto;
 import qnt.moviebooking.dto.request.ShowtimeRequestDto;
 import qnt.moviebooking.dto.resource.ShowtimeResourceDto;
 import qnt.moviebooking.service.ShowtimeService;
 
-import java.util.List;
-
 @RestController("AdminShowtimeController")
 @RequiredArgsConstructor
-@RequestMapping("/admin/showtimes")
+@RequestMapping("/admin/showtime")
 public class ShowtimeController {
 
     private final ShowtimeService showtimeService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<List<ShowtimeResourceDto>>> createShowtime(
-            @RequestBody ShowtimeRequestDto request) {
+            @RequestBody ShowtimeBulkRequestDto request) {
 
-        List<ShowtimeResourceDto> createdShowtime = showtimeService.createShowtimes(request);
+        List<ShowtimeResourceDto> response = showtimeService.createBulkShowtime(request);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Tạo showtime thành công", createdShowtime));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ApiResponse<>(HttpStatus.CREATED.value(), "Tạo showtime thành công", response));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ShowtimeResourceDto>> updateShowtime(@PathVariable Long id,
             @RequestBody ShowtimeRequestDto request) {
 
-        ShowtimeResourceDto updateShowtime = showtimeService.updateShowtime(id, request);
+        ShowtimeResourceDto response = showtimeService.updateShowtime(id, request);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Cập nhật showtime thành công", updateShowtime));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Cập nhật showtime thành công", response));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteShowtime(@PathVariable Long id) {
 
-        showtimeService.softDeleteShowtime(id);
+        showtimeService.deletedShowtime(id);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Xóa showtime thành công", null));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Xóa showtime thành công", null));
     }
 
     @PostMapping("/rollback-deleted")
     public ResponseEntity<ApiResponse<Void>> rollbackShowtime() {
 
-        showtimeService.rollBackDeletedShowtimes();
+        showtimeService.rollBackDeletedShowtime();
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Rollback showtime thành công", null));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Rollback showtime thành công", null));
+    }
+
+    @GetMapping("/auditorium/{id}")
+    public ResponseEntity<ApiResponse<List<ShowtimeResourceDto>>> getShowtimeByAuditoriumId(@PathVariable Long id) {
+        List<ShowtimeResourceDto> response = showtimeService.getShowtimeByAuditorium(id);
+
+        return ResponseEntity.ok(new ApiResponse<>(
+                HttpStatus.OK.value(), "Lấy thông tin showtime thành công", response));
     }
 }
