@@ -31,7 +31,7 @@ public class VocherController {
         VoucherResourceDto response = voucherService.createVoucher(request);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(true, "Tạo voucher thành công", response));
+                .body(new ApiResponse<>(HttpStatus.CREATED.value(), "Tạo voucher thành công", response));
     }
 
     @PutMapping("/{id}")
@@ -40,41 +40,44 @@ public class VocherController {
         VoucherResourceDto response = voucherService.updateVoucher(id, request);
 
         return ResponseEntity.ok()
-                .body(new ApiResponse<>(true, "Cập nhật voucher thành công", response));
+                .body(new ApiResponse<>(HttpStatus.OK.value(), "Cập nhật voucher thành công", response));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteVoucher(@PathVariable Long id) {
         voucherService.deleteVoucher(id);
 
-        return ResponseEntity.ok().body(new ApiResponse<>(true, "Xoá voucher thành công", null));
+        return ResponseEntity.ok().body(new ApiResponse<>(HttpStatus.OK.value(), "Xoá voucher thành công", null));
     }
 
     @PostMapping("/rollback-deleted")
     public ResponseEntity<ApiResponse<Void>> rollbackDeleted() {
         voucherService.rollBackDeleted();
 
-        return ResponseEntity.ok().body(new ApiResponse<>(true, "Hoàn tác voucher thành công", null));
+        return ResponseEntity.ok().body(new ApiResponse<>(HttpStatus.OK.value(), "Hoàn tác voucher thành công", null));
     }
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<VoucherResourceDto>>> getAllVouchers() {
         List<VoucherResourceDto> response = voucherService.getAllVoucher();
 
-        return ResponseEntity.ok().body(new ApiResponse<>(true, "Lấy thông tin voucher thành công", response));
+        return ResponseEntity.ok().body(new ApiResponse<>(
+                HttpStatus.OK.value(), "Lấy thông tin voucher thành công", response));
     }
 
     @GetMapping("/active")
     public ResponseEntity<ApiResponse<List<VoucherResourceDto>>> getAllVouchersActive(@RequestParam boolean active) {
         List<VoucherResourceDto> response = voucherService.getAllVoucherExpired(active);
 
-        return ResponseEntity.ok().body(new ApiResponse<>(true, "Lấy thông tin voucher thành công", response));
+        return ResponseEntity.ok().body(new ApiResponse<>(
+                HttpStatus.OK.value(), "Lấy thông tin voucher thành công", response));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<VoucherResourceDto>> getVoucherById(@PathVariable Long id) {
         VoucherResourceDto response = voucherService.getVoucherById(id);
 
-        return ResponseEntity.ok().body(new ApiResponse<>(true, "Lấy thông tin voucher thành công", response));
+        return ResponseEntity.ok().body(new ApiResponse<>(
+                HttpStatus.OK.value(), "Lấy thông tin voucher thành công", response));
     }
 }

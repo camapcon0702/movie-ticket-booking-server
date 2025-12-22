@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.ApiResponse;
-import qnt.moviebooking.dto.request.AuditoryumRequestDto;
+import qnt.moviebooking.dto.request.AuditoriumRequestDto;
 import qnt.moviebooking.dto.resource.AuditoriumResourceDto;
 import qnt.moviebooking.service.AuditoriumService;
 
@@ -21,21 +21,22 @@ public class AuditoriumController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<AuditoriumResourceDto>> createAuditorium(
-            @RequestBody AuditoryumRequestDto requestDto) {
+            @RequestBody AuditoriumRequestDto requestDto) {
 
         AuditoriumResourceDto auditorium = auditoriumService.createAuditorium(requestDto);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(true, "Tạo phòng chiếu thành công", auditorium));
+                .body(new ApiResponse<>(HttpStatus.CREATED.value(), "Tạo phòng chiếu thành công", auditorium));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<AuditoriumResourceDto>> updateAuditorium(@PathVariable Long id,
-            @RequestBody AuditoryumRequestDto requestDto) {
+            @RequestBody AuditoriumRequestDto requestDto) {
 
         AuditoriumResourceDto auditorium = auditoriumService.updateAuditorium(id, requestDto);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Cập nhật phòng chiếu thành công", auditorium));
+        return ResponseEntity
+                .ok(new ApiResponse<>(HttpStatus.OK.value(), "Cập nhật phòng chiếu thành công", auditorium));
     }
 
     @DeleteMapping("/{id}")
@@ -43,7 +44,7 @@ public class AuditoriumController {
 
         auditoriumService.deleteAuditorium(id);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Xóa phòng chiếu thành công", null));
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Xóa phòng chiếu thành công", null));
     }
 
     @PostMapping("/rollback-deleted")
@@ -51,7 +52,8 @@ public class AuditoriumController {
 
         auditoriumService.rollBackDeletedAuditoriums();
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Khôi phục phòng chiếu đã xóa thành công", null));
+        return ResponseEntity.ok(new ApiResponse<>(
+                HttpStatus.OK.value(), "Khôi phục phòng chiếu đã xóa thành công", null));
     }
 
     @GetMapping
@@ -59,7 +61,8 @@ public class AuditoriumController {
 
         var auditoriums = auditoriumService.getAllAuditoriums();
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy danh sách phòng chiếu thành công", auditoriums));
+        return ResponseEntity.ok(new ApiResponse<>(
+                HttpStatus.OK.value(), "Lấy danh sách phòng chiếu thành công", auditoriums));
     }
 
     @GetMapping("/{id}")
@@ -67,6 +70,7 @@ public class AuditoriumController {
 
         var auditorium = auditoriumService.getAuditoriumById(id);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Lấy thông tin phòng chiếu thành công", auditorium));
+        return ResponseEntity.ok(new ApiResponse<>(
+                HttpStatus.OK.value(), "Lấy thông tin phòng chiếu thành công", auditorium));
     }
 }

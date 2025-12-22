@@ -30,20 +30,22 @@ public class AuthController {
         try {
             if (!userService.isExistedUserNoDelete(request.getEmail())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new ApiResponse<>(false, "Email hoặc mật khẩu không đúng!", null));
+                        .body(new ApiResponse<>(HttpStatus.BAD_REQUEST.value(), "Email hoặc mật khẩu không đúng!",
+                                null));
             }
 
             if (!userService.isUserActive(request.getEmail())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(new ApiResponse<>(false, "Tài khoản chưa được kích hoạt!", null));
+                        .body(new ApiResponse<>(HttpStatus.FORBIDDEN.value(), "Tài khoản chưa được kích hoạt!", null));
             }
 
             Map<String, Object> response = authService.login(request);
-            return ResponseEntity.ok(new ApiResponse<>(true, "Đăng nhập thành công!",
+            return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK
+                    .value(), "Đăng nhập thành công!",
                     response));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponse<>(false, "Email hoặc mật khẩu không đúng!", null));
+                    .body(new ApiResponse<>(HttpStatus.BAD_REQUEST.value(), "Email hoặc mật khẩu không đúng!", null));
         }
     }
 
@@ -52,7 +54,7 @@ public class AuthController {
         UserResourceDto registeredUser = authService.register(request);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(true, "Đăng ký thành công!", registeredUser));
+                .body(new ApiResponse<>(HttpStatus.CREATED.value(), "Đăng ký thành công!", registeredUser));
     }
 
     @PostMapping("/activate")
@@ -60,13 +62,14 @@ public class AuthController {
         userService.activateUser(email, code);
 
         return ResponseEntity
-                .ok(new ApiResponse<>(true, "Kích hoạt tài khoản thành công!", null));
+                .ok(new ApiResponse<>(HttpStatus.OK.value(), "Kích hoạt tài khoản thành công!", null));
     }
 
     @PostMapping("/resend-code")
     public ResponseEntity<ApiResponse<Void>> resendVerificationCode(@RequestParam String email) {
         authService.resendVerificationCode(email);
 
-        return ResponseEntity.ok(new ApiResponse<>(true, "Mã xác thực mới đã được gửi đến email của bạn.", null));
+        return ResponseEntity.ok(new ApiResponse<>(
+                HttpStatus.OK.value(), "Mã xác thực mới đã được gửi đến email của bạn.", null));
     }
 }

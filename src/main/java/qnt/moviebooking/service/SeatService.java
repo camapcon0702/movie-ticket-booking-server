@@ -10,10 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.request.SeatRequestDto;
 import qnt.moviebooking.dto.request.SeatsRequestDto;
+import qnt.moviebooking.dto.resource.SeatPriceResourceDto;
 import qnt.moviebooking.dto.resource.SeatResourceDto;
 import qnt.moviebooking.entity.AuditoriumEntity;
 import qnt.moviebooking.entity.SeatEntity;
-import qnt.moviebooking.enums.SeatEnums;
+import qnt.moviebooking.entity.SeatPriceEntity;
+import qnt.moviebooking.exception.ExistException;
+import qnt.moviebooking.exception.NotFoundException;
 import qnt.moviebooking.repository.AuditoriumRepository;
 import qnt.moviebooking.repository.SeatRepository;
 
@@ -23,14 +26,15 @@ import qnt.moviebooking.repository.SeatRepository;
 public class SeatService {
     private final SeatRepository seatRepository;
     private final AuditoriumRepository auditoriumRepository;
+    private final SeatPriceService seatPriceService;
 
     @Transactional
     public List<SeatResourceDto> createSeats(SeatsRequestDto dto) {
 
-        SeatEnums seatType = parseSeatType(dto.getSeatType());
-
         AuditoriumEntity auditorium = auditoriumRepository.findById(dto.getAuditoriumId())
-                .orElseThrow(() -> new IllegalArgumentException("Auditorium not found"));
+                .orElseThrow(() -> new NotFoundException("Auditorium not found"));
+
+        SeatPriceEntity seatPrice = seatPriceService.getSeatPriceEntityById(dto.getSeatPriceId());
 
         List<SeatEntity> existingSeats = seatRepository
                 .findAllByAuditoriumIdAndRowChartAndSeatNumberInAndDeletedAtIsNull(
@@ -40,7 +44,7 @@ public class SeatService {
             String duplicateSeats = existingSeats.stream()
                     .map(SeatEntity::getSeatNumber)
                     .collect(Collectors.joining(", "));
-            throw new IllegalArgumentException(
+            throw new ExistException(
                     "Các ghế sau đã tồn tại trong hàng " + dto.getRowChart() + ": " + duplicateSeats);
         }
 
@@ -48,7 +52,7 @@ public class SeatService {
                 .rowChart(dto.getRowChart())
                 .seatNumber(seatNumber)
                 .auditorium(auditorium)
-                .seatType(seatType)
+                .seatPrice(seatPrice)
                 .status(true)
                 .build()).toList();
 
@@ -59,11 +63,12 @@ public class SeatService {
     @Transactional
     public SeatResourceDto updateSeat(Long id, SeatRequestDto dto) {
         SeatEntity existingSeat = getSeatEntityById(id);
-        SeatEnums seatType = parseSeatType(dto.getSeatType());
+
+        SeatPriceEntity seatPrice = seatPriceService.getSeatPriceEntityById(dto.getSeatPriceId());
 
         if (!existingSeat.getAuditorium().getId().equals(dto.getAuditoriumId())) {
             AuditoriumEntity newAuditorium = auditoriumRepository.findById(dto.getAuditoriumId())
-                    .orElseThrow(() -> new IllegalArgumentException("Auditorium not found"));
+                    .orElseThrow(() -> new NotFoundException("Auditorium not found"));
             existingSeat.setAuditorium(newAuditorium);
         }
 
@@ -77,7 +82,7 @@ public class SeatService {
 
         existingSeat.setRowChart(dto.getRowChart());
         existingSeat.setSeatNumber(dto.getSeatNumber());
-        existingSeat.setSeatType(seatType);
+        existingSeat.setSeatPrice(seatPrice);
 
         SeatEntity savedEntity = seatRepository.save(existingSeat);
         return mapToDto(savedEntity);
@@ -97,7 +102,7 @@ public class SeatService {
         List<SeatEntity> seats = seatRepository.findAllById(ids);
 
         if (seats.isEmpty()) {
-            throw new IllegalArgumentException("Danh sách ghế cần xóa không tồn tại!");
+            throw new NotFoundException("Danh sách ghế cần xóa không tồn tại!");
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -115,7 +120,7 @@ public class SeatService {
         List<SeatEntity> deletedSeats = seatRepository.findAllByDeletedAtAfter(LocalDateTime.now().minusMinutes(10));
 
         if (deletedSeats.isEmpty()) {
-            throw new IllegalArgumentException("Không có ghế nào để khôi phục trong 10 phút qua!");
+            throw new NotFoundException("Không có ghế nào để khôi phục trong 10 phút qua!");
         }
 
         for (SeatEntity seat : deletedSeats) {
@@ -123,7 +128,7 @@ public class SeatService {
                     seat.getAuditorium().getId(), seat.getRowChart(), seat.getSeatNumber());
 
             if (isOccupied) {
-                throw new IllegalArgumentException(
+                throw new NotFoundException(
                         String.format("Không thể khôi phục ghế %s-%s vì vị trí này đã có ghế mới.",
                                 seat.getRowChart(), seat.getSeatNumber()));
             }
@@ -141,7 +146,7 @@ public class SeatService {
 
     public SeatEntity getSeatEntityById(Long id) {
         return seatRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new IllegalArgumentException("Ghế không tồn tại với id: " + id));
+                .orElseThrow(() -> new NotFoundException("Ghế không tồn tại với id: " + id));
     }
 
     public List<SeatResourceDto> getSeatsByAuditorium(Long auditoriumId) {
@@ -163,16 +168,8 @@ public class SeatService {
         boolean exists = seatRepository.existsByAuditoriumIdAndRowChartAndSeatNumberAndDeletedAtIsNull(
                 auditoriumId, rowChart, seatNumber);
         if (exists) {
-            throw new IllegalArgumentException(
+            throw new NotFoundException(
                     "Ghế đã tồn tại trong phòng chiếu với hàng '" + rowChart + "' và số ghế '" + seatNumber + "'.");
-        }
-    }
-
-    private SeatEnums parseSeatType(String seatTypeStr) {
-        try {
-            return SeatEnums.valueOf(seatTypeStr.toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException e) {
-            throw new IllegalArgumentException("Loại ghế không hợp lệ: " + seatTypeStr);
         }
     }
 
@@ -181,7 +178,13 @@ public class SeatService {
                 .id(entity.getId())
                 .rowChart(entity.getRowChart())
                 .seatNumber(entity.getSeatNumber())
-                .seatType(entity.getSeatType().name())
+                .seatType(SeatPriceResourceDto.builder()
+                        .id(entity.getId())
+                        .seatType(entity.getSeatPrice().getSeatType())
+                        .price(entity.getSeatPrice().getPrice())
+                        .createdAt(entity.getCreatedAt())
+                        .updatedAt(entity.getUpdatedAt())
+                        .build())
                 .auditoriumId(entity.getAuditorium().getId())
                 .status(entity.isStatus())
                 .createdAt(entity.getCreatedAt())

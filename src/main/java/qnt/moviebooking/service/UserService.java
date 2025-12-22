@@ -17,6 +17,7 @@ import qnt.moviebooking.dto.request.UserRequestDto;
 import qnt.moviebooking.dto.resource.UserResourceDto;
 import qnt.moviebooking.entity.RoleEntity;
 import qnt.moviebooking.entity.UserEntity;
+import qnt.moviebooking.exception.NotFoundException;
 import qnt.moviebooking.repository.UserRepository;
 
 @Service
@@ -26,7 +27,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    private UserEntity getCurrentUser() {
+    public UserEntity getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()
@@ -87,15 +88,15 @@ public class UserService {
         UserEntity user = getUserByEmailNoDelete(email);
 
         if (user.getIsActive()) {
-            throw new RuntimeException("Tài khoản đã xác thực!");
+            throw new NotFoundException("Tài khoản đã xác thực!");
         }
 
         if (!code.trim().equals(user.getCode())) {
-            throw new RuntimeException("Mã xác thực không hợp lệ!");
+            throw new NotFoundException("Mã xác thực không hợp lệ!");
         }
 
         if (user.getCodeExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Mã xác thực đã hết hạn (2 phút). Vui lòng yêu cầu mã mới.");
+            throw new NotFoundException("Mã xác thực đã hết hạn (2 phút). Vui lòng yêu cầu mã mới.");
         }
 
         user.setIsActive(true);
@@ -116,11 +117,11 @@ public class UserService {
             LocalDateTime expiresAt) {
 
         if (!request.getPassword().equals(request.getConfirmPassword())) {
-            throw new RuntimeException("Mật khẩu không trùng nhau!");
+            throw new NotFoundException("Mật khẩu không trùng nhau!");
         }
 
         if (isExistedUserNoDelete(request.getEmail())) {
-            throw new RuntimeException("Email đã được đăng ký!");
+            throw new NotFoundException("Email đã được đăng ký!");
         }
 
         if (isExistedUserDeleted(request.getEmail())) {
@@ -156,7 +157,7 @@ public class UserService {
         UserEntity user = getCurrentUser();
 
         if (!request.getPassword().equals(request.getConfirmPassword())) {
-            throw new RuntimeException("Mật khẩu không trùng nhau!");
+            throw new NotFoundException("Mật khẩu không trùng nhau!");
         }
 
         user.setFullName(request.getFullName());
@@ -170,7 +171,7 @@ public class UserService {
     @Transactional
     public void deleteUser(String email) {
         if (!isExistedUserNoDelete(email)) {
-            throw new RuntimeException("Không tìm thấy người dùng với email: " + email);
+            throw new NotFoundException("Không tìm thấy người dùng với email: " + email);
         }
 
         UserEntity user = getUserByEmailNoDelete(email);
@@ -183,7 +184,7 @@ public class UserService {
         List<UserEntity> users = userRepository.findAllByDeletedAtAfter(LocalDateTime.now().minusMinutes(10));
 
         if (users.isEmpty()) {
-            throw new IllegalArgumentException("Không có tài khoản nào để khôi phục!");
+            throw new NotFoundException("Không có tài khoản nào để khôi phục!");
         }
 
         for (UserEntity user : users) {

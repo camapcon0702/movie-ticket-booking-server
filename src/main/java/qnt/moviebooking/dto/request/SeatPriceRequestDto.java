@@ -1,5 +1,7 @@
 package qnt.moviebooking.dto.request;
 
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AuditoryumRequestDto {
-    private String name;
+public class SeatPriceRequestDto {
+    private String seatType;
+    private BigDecimal price;
 }

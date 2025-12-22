@@ -3,19 +3,20 @@ package qnt.moviebooking.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.request.MovieRequestDto;
-import qnt.moviebooking.dto.resource.MovieResouresDto;
+import qnt.moviebooking.dto.resource.MovieResourceDto;
 import qnt.moviebooking.entity.GenreEntity;
 import qnt.moviebooking.entity.MovieEntity;
+import qnt.moviebooking.entity.MovieGenreEntity;
 import qnt.moviebooking.enums.MovieEnums;
+import qnt.moviebooking.exception.ExistException;
+import qnt.moviebooking.exception.NotFoundException;
 import qnt.moviebooking.repository.MovieRepository;
 
 @Service
@@ -25,31 +26,57 @@ public class MovieService {
     private final MovieRepository movieRepository;
     private final GenreService genreService;
 
-    private final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+    private static final List<MovieEnums> USER_VISIBLE_STATUSES = List.of(
+            MovieEnums.NOW_SHOWING,
+            MovieEnums.COMING_SOON);
 
     @Transactional
-    public MovieResouresDto createMovie(MovieRequestDto dto) {
+    public MovieResourceDto createMovie(MovieRequestDto dto) {
         validateTitle(dto.getTitle(), null);
         validateGenres(dto.getGenreIds());
-        MovieEntity movieEntity = mapToEntity(dto);
-        return mapToDto(movieRepository.save(movieEntity));
+
+        MovieEntity movie = MovieEntity.builder()
+                .title(dto.getTitle())
+                .description(dto.getDescription())
+                .durationMinutes(dto.getDurationMinutes())
+                .releaseDate(LocalDate.parse(dto.getReleaseDate(), DATE_FORMATTER))
+                .posterUrl(dto.getPosterUrl())
+                .trailerUrl(dto.getTrailerUrl())
+                .status(MovieEnums.valueOf(dto.getStatus().toUpperCase()))
+                .starNumber(dto.getStarNumber())
+                .build();
+        attachGenres(movie, dto.getGenreIds());
+        movieRepository.save(movie);
+
+        return mapToResource(movie);
     }
 
     @Transactional
-    public MovieResouresDto updateMovie(Long id, MovieRequestDto dto) {
-        MovieEntity existingMovie = getMovieEntityById(id);
+    public MovieResourceDto updateMovie(Long id, MovieRequestDto dto) {
+        MovieEntity movie = getMovieEntityById(id);
 
-        validateTitle(dto.getTitle(), existingMovie.getId());
+        validateTitle(dto.getTitle(), movie.getId());
         validateGenres(dto.getGenreIds());
 
-        MovieEntity updatedMovie = mapToEntity(dto);
-        updatedMovie.setId(existingMovie.getId());
-        return mapToDto(movieRepository.save(updatedMovie));
+        movie.setTitle(dto.getTitle());
+        movie.setDescription(dto.getDescription());
+        movie.setDurationMinutes(dto.getDurationMinutes());
+        movie.setReleaseDate(LocalDate.parse(dto.getReleaseDate(), DATE_FORMATTER));
+        movie.setPosterUrl(dto.getPosterUrl());
+        movie.setTrailerUrl(dto.getTrailerUrl());
+        movie.setStatus(MovieEnums.valueOf(dto.getStatus().toUpperCase()));
+        movie.setStarNumber(dto.getStarNumber());
+        movie.getMovieGenres().clear();
+        attachGenres(movie, dto.getGenreIds());
+
+        return mapToResource(movieRepository.save(movie));
     }
 
     public MovieEntity getMovieEntityById(Long id) {
         return movieRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new IllegalArgumentException("Phim không tồn tại với id: " + id));
+                .orElseThrow(() -> new NotFoundException("Phim không tồn tại với id: " + id));
     }
 
     @Transactional
@@ -61,74 +88,68 @@ public class MovieService {
 
     @Transactional
     public void rollBackDeletedMovies() {
-        List<MovieEntity> deletedMovies = movieRepository
+        List<MovieEntity> movies = movieRepository
                 .findAllByDeletedAtAfter(LocalDateTime.now().minusMinutes(10));
-        if (deletedMovies.isEmpty()) {
-            throw new IllegalArgumentException("Không có phim nào để khôi phục!");
+        if (movies.isEmpty()) {
+            throw new NotFoundException("Không có phim nào để khôi phục!");
         }
 
-        for (MovieEntity movie : deletedMovies) {
-            movie.setDeletedAt(null);
-        }
+        movies.forEach(m -> m.setDeletedAt(null));
 
-        movieRepository.saveAll(deletedMovies);
+        movieRepository.saveAll(movies);
     }
 
-    public List<MovieResouresDto> getAllMoviesAdmin() {
+    public List<MovieResourceDto> getAllMoviesAdmin() {
         return movieRepository.findAllByDeletedAtIsNull()
-                .stream().map(this::mapToDto).toList();
+                .stream().map(this::mapToResource).toList();
     }
 
-    public MovieResouresDto getMovieByIdAdmin(Long id) {
+    public MovieResourceDto getMovieByIdAdmin(Long id) {
         MovieEntity movie = getMovieEntityById(id);
-        return mapToDto(movie);
+        return mapToResource(movie);
     }
 
-    public List<MovieResouresDto> searchMoviesByTitleAdmin(String keyword) {
+    public List<MovieResourceDto> searchMoviesByTitleAdmin(String keyword) {
         return movieRepository.findByTitleContainingIgnoreCaseAndDeletedAtIsNull(keyword)
-                .stream().map(this::mapToDto).toList();
+                .stream().map(this::mapToResource).toList();
     }
 
-    public List<MovieResouresDto> getMoviesByGenreId(Long genreId) {
-        return movieRepository.findDistinctByGenresIdAndDeletedAtIsNull(genreId)
-                .stream().map(this::mapToDto).toList();
+    public List<MovieResourceDto> getMoviesByGenreId(Long genreId) {
+        return movieRepository.findDistinctByMovieGenresGenreIdAndDeletedAtIsNull(genreId)
+                .stream().map(this::mapToResource).toList();
     }
 
-    private static final List<MovieEnums> USER_VISIBLE_STATUSES = Arrays.asList(
-            MovieEnums.NOW_SHOWING,
-            MovieEnums.COMING_SOON);
-
-    public List<MovieResouresDto> getAllMoviesForUser() {
+    public List<MovieResourceDto> getAllMoviesForUser() {
         return movieRepository.findAllByStatusInAndDeletedAtIsNull(USER_VISIBLE_STATUSES)
-                .stream().map(this::mapToDto).toList();
+                .stream().map(this::mapToResource).toList();
     }
 
-    public List<MovieResouresDto> searchMoviesByTitleForUser(String keyword) {
+    public List<MovieResourceDto> searchMoviesByTitleForUser(String keyword) {
         return movieRepository
                 .findByTitleContainingIgnoreCaseAndDeletedAtIsNullAndStatusIn(keyword, USER_VISIBLE_STATUSES)
-                .stream().map(this::mapToDto).toList();
+                .stream().map(this::mapToResource).toList();
     }
 
-    public MovieResouresDto getMovieByIdForUser(Long id) {
+    public MovieResourceDto getMovieByIdForUser(Long id) {
         MovieEntity movie = movieRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new IllegalArgumentException("Phim không tồn tại với id: " + id));
+                .orElseThrow(() -> new NotFoundException("Phim không tồn tại với id: " + id));
 
         if (!USER_VISIBLE_STATUSES.contains(movie.getStatus())) {
             return null;
         }
 
-        return mapToDto(movie);
+        return mapToResource(movie);
     }
 
-    public List<MovieResouresDto> getMoviesByGenreForUser(Long genreId) {
-        List<MovieEntity> movies = movieRepository.findDistinctByGenresIdAndDeletedAtIsNull(genreId);
+    public List<MovieResourceDto> getMoviesByGenreForUser(Long genreId) {
+        List<MovieEntity> movies = movieRepository.findDistinctByMovieGenresGenreIdAndDeletedAtIsNull(genreId);
 
         List<MovieEntity> filtered = movies.stream()
                 .filter(m -> USER_VISIBLE_STATUSES.contains(m.getStatus()))
                 .toList();
 
         return filtered.stream()
-                .map(this::mapToDto)
+                .map(this::mapToResource)
                 .toList();
     }
 
@@ -137,73 +158,48 @@ public class MovieService {
                 : movieRepository.findByTitleAndDeletedAtIsNull(title)
                         .filter(m -> !m.getId().equals(excludeId)).isPresent();
         if (exists) {
-            throw new IllegalArgumentException("Tên phim đã tồn tại: " + title);
+            throw new ExistException("Tên phim đã tồn tại: " + title);
         }
     }
 
     private void validateGenres(Long[] genreIds) {
         if (genreIds == null || genreIds.length == 0) {
-            throw new IllegalArgumentException("Phim phải có ít nhất 1 thể loại");
+            throw new NotFoundException("Phim phải có ít nhất 1 thể loại");
         }
         for (Long id : genreIds) {
             if (!genreService.getGenreEntityById(id).getId().equals(id)) {
-                throw new IllegalArgumentException("Thể loại không tồn tại: " + id);
+                throw new NotFoundException("Thể loại không tồn tại: " + id);
             }
         }
     }
 
-    private MovieEntity mapToEntity(MovieRequestDto dto) {
-        MovieEnums status;
-        try {
-            status = MovieEnums.valueOf(dto.getStatus().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Trạng thái không tồn tại: " + dto.getStatus());
+    private void attachGenres(MovieEntity movie, Long[] genreIds) {
+        for (Long genreId : genreIds) {
+            GenreEntity genre = genreService.getGenreEntityById(genreId);
+            movie.getMovieGenres().add(
+                    MovieGenreEntity.builder()
+                            .movie(movie)
+                            .genre(genre)
+                            .build());
         }
-
-        List<GenreEntity> genres = Arrays.stream(dto.getGenreIds())
-                .map(id -> genreService.getGenreEntityById(id))
-                .collect(Collectors.toList());
-
-        LocalDate releaseDate;
-        try {
-            releaseDate = LocalDate.parse(dto.getReleaseDate(), DATE_FORMATTER);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Ngày phát hành không hợp lệ, đúng định dạng: dd-MM-yyyy");
-        }
-
-        return MovieEntity.builder()
-                .title(dto.getTitle())
-                .description(dto.getDescription())
-                .durationMinutes(dto.getDurationMinutes())
-                .releaseDate(releaseDate)
-                .posterUrl(dto.getPosterUrl())
-                .trailerUrl(dto.getTrailerUrl())
-                .status(status)
-                .starNumber(dto.getStarNumber())
-                .genres(genres)
-                .build();
     }
 
-    public MovieResouresDto mapToDto(MovieEntity entity) {
-        String[] genreNames = entity.getGenres().stream()
-                .map(GenreEntity::getName)
+    public MovieResourceDto mapToResource(MovieEntity entity) {
+        String[] genres = entity.getMovieGenres().stream()
+                .map(mg -> mg.getGenre().getName())
                 .toArray(String[]::new);
 
-        String releaseDate = entity.getReleaseDate() != null
-                ? entity.getReleaseDate().format(DATE_FORMATTER)
-                : null;
-
-        return MovieResouresDto.builder()
+        return MovieResourceDto.builder()
                 .id(entity.getId())
                 .title(entity.getTitle())
                 .description(entity.getDescription())
                 .durationMinutes(entity.getDurationMinutes())
-                .releaseDate(releaseDate)
+                .releaseDate(entity.getReleaseDate().format(DATE_FORMATTER))
                 .posterUrl(entity.getPosterUrl())
                 .trailerUrl(entity.getTrailerUrl())
                 .status(entity.getStatus().name())
                 .starNumber(entity.getStarNumber())
-                .genres(genreNames)
+                .genres(genres)
                 .build();
     }
 }

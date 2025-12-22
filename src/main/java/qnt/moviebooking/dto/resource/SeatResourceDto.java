@@ -15,7 +15,7 @@ public class SeatResourceDto {
     private Long id;
     private String rowChart;
     private String seatNumber;
-    private String seatType;
+    private SeatPriceResourceDto seatType;
     private boolean status;
     private Long auditoriumId;
     private LocalDateTime createdAt;

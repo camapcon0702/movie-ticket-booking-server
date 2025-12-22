@@ -16,27 +16,35 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name="tbl_showtimes")
+@Table(name = "tbl_showtime", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "auditorium_id", "start_time" })
+})
 public class ShowtimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private LocalDateTime startTime;
+
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal basePrice;
+
+    @Column(nullable = false)
+    private LocalDateTime startTime;
+
     @Column(updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
+
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
     private LocalDateTime deletedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="movie_id",nullable = false)
+    @JoinColumn(name = "movie_id", nullable = false)
     private MovieEntity movie;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="auditorium_id",nullable = false)
+    @JoinColumn(name = "auditorium_id", nullable = false)
     private AuditoriumEntity auditorium;
-
 
 }

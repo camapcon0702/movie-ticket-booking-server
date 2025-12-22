@@ -15,6 +15,8 @@ import qnt.moviebooking.dto.request.RegisterRequestDto;
 import qnt.moviebooking.dto.resource.UserResourceDto;
 import qnt.moviebooking.entity.RoleEntity;
 import qnt.moviebooking.entity.UserEntity;
+import qnt.moviebooking.exception.ExistException;
+import qnt.moviebooking.exception.NotFoundException;
 import qnt.moviebooking.util.JwtUtil;
 
 @Service
@@ -40,7 +42,7 @@ public class AuthService {
                     "token", token,
                     "user", user);
         } catch (Exception e) {
-            throw new RuntimeException("Email hoặc mật khẩu không đúng!");
+            throw new NotFoundException("Email hoặc mật khẩu không đúng!");
         }
     }
 
@@ -60,7 +62,7 @@ public class AuthService {
     public UserResourceDto register(RegisterRequestDto request) {
 
         if (userService.isExistedUserNoDelete(request.getEmail())) {
-            throw new RuntimeException("Email đã được đăng ký!");
+            throw new ExistException("Email đã được đăng ký!");
         }
 
         RoleEntity defaultRole = roleService.getRoleEntityByName("USER");
@@ -80,7 +82,7 @@ public class AuthService {
         UserEntity user = userService.getUserByEmail(email);
 
         if (user.getIsActive()) {
-            throw new RuntimeException("Tài khoản đã được kích hoạt.");
+            throw new NotFoundException("Tài khoản đã được kích hoạt.");
         }
 
         String newCode = generateVerificationCode();

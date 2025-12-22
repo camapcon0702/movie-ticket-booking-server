@@ -7,10 +7,12 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import qnt.moviebooking.dto.request.AuditoryumRequestDto;
+import qnt.moviebooking.dto.request.AuditoriumRequestDto;
 import qnt.moviebooking.dto.resource.AuditoriumResourceDto;
 import qnt.moviebooking.dto.resource.SeatResourceDto;
 import qnt.moviebooking.entity.AuditoriumEntity;
+import qnt.moviebooking.exception.ExistException;
+import qnt.moviebooking.exception.NotFoundException;
 import qnt.moviebooking.repository.AuditoriumRepository;
 
 @Service
@@ -20,7 +22,7 @@ public class AuditoriumService {
     private final SeatService seatService;
 
     @Transactional
-    public AuditoriumResourceDto createAuditorium(AuditoryumRequestDto requestDto) {
+    public AuditoriumResourceDto createAuditorium(AuditoriumRequestDto requestDto) {
         validateTitle(requestDto.getName(), null);
 
         AuditoriumEntity entity = mapToEntity(requestDto);
@@ -29,7 +31,7 @@ public class AuditoriumService {
     }
 
     @Transactional
-    public AuditoriumResourceDto updateAuditorium(Long id, AuditoryumRequestDto requestDto) {
+    public AuditoriumResourceDto updateAuditorium(Long id, AuditoriumRequestDto requestDto) {
         AuditoriumEntity existingAuditorium = getAuditoriumEntityById(id);
 
         validateTitle(requestDto.getName(), existingAuditorium.getId());
@@ -61,7 +63,7 @@ public class AuditoriumService {
         var deletedAuditoriums = auditoriumRepository
                 .findAllByDeletedAtAfter(LocalDateTime.now().minusMinutes(10));
         if (deletedAuditoriums.isEmpty()) {
-            throw new IllegalArgumentException("Không có phòng chiếu nào để khôi phục!");
+            throw new NotFoundException("Không có phòng chiếu nào để khôi phục!");
         }
         deletedAuditoriums.forEach(auditorium -> auditorium.setDeletedAt(null));
         auditoriumRepository.saveAll(deletedAuditoriums);
@@ -69,7 +71,7 @@ public class AuditoriumService {
 
     public AuditoriumEntity getAuditoriumEntityById(Long id) {
         return auditoriumRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new IllegalArgumentException("Phòng chiếu không tồn tại với id: " + id));
+                .orElseThrow(() -> new NotFoundException("Phòng chiếu không tồn tại với id: " + id));
     }
 
     public AuditoriumResourceDto getAuditoriumById(Long id) {
@@ -84,7 +86,7 @@ public class AuditoriumService {
 
     public AuditoriumEntity getAuditoriumByName(String name) {
         return auditoriumRepository.findByNameAndDeletedAtIsNull(name)
-                .orElseThrow(() -> new IllegalArgumentException("Phòng chiếu không tồn tại với tên: " + name));
+                .orElseThrow(() -> new NotFoundException("Phòng chiếu không tồn tại với tên: " + name));
     }
 
     private void validateTitle(String name, Long excludeId) {
@@ -92,7 +94,7 @@ public class AuditoriumService {
                 : auditoriumRepository.findByNameAndDeletedAtIsNull(name)
                         .filter(a -> !a.getId().equals(excludeId)).isPresent();
         if (exists) {
-            throw new IllegalArgumentException("Tên phòng chiếu đã tồn tại: " + name);
+            throw new ExistException("Tên phòng chiếu đã tồn tại: " + name);
         }
     }
 
@@ -105,7 +107,7 @@ public class AuditoriumService {
                 .build();
     }
 
-    private AuditoriumEntity mapToEntity(AuditoryumRequestDto dto) {
+    private AuditoriumEntity mapToEntity(AuditoriumRequestDto dto) {
         return AuditoriumEntity.builder()
                 .name(dto.getName())
                 .build();

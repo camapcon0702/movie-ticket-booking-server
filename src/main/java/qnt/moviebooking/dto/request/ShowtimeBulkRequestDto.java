@@ -1,5 +1,7 @@
 package qnt.moviebooking.dto.request;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -11,9 +13,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class SeatsRequestDto {
+public class ShowtimeBulkRequestDto {
+    private Long movieId;
     private Long auditoriumId;
-    private String rowChart;
-    private List<String> seatNumbers;
-    private Long seatPriceId;
+    private List<LocalDateTime> startTimes;
+    private BigDecimal basePrice;
 }

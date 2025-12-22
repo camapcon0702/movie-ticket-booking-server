@@ -11,19 +11,24 @@ import qnt.moviebooking.enums.BookingEnums;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name="tbl_bookings")
+@Table(name = "tbl_bookings")
 public class BookingEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private LocalDateTime bookingTime;
-    private BigDecimal total_amount;
+
+    private BigDecimal totalAmount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private BookingEnums status;
     @Column(updatable = false)
     @CreationTimestamp
@@ -41,8 +46,12 @@ public class BookingEntity {
     private UserEntity user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "voucher_id", nullable = true)
+    @JoinColumn(name = "voucher_id")
     private VoucherEntity voucher;
+
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<TicketEntity> tickets = new ArrayList<>();
 
     @PrePersist
     public void prePersist() {

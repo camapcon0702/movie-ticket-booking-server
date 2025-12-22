@@ -1,5 +1,6 @@
 package qnt.moviebooking.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -11,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.request.VoucherRequestDto;
 import qnt.moviebooking.dto.resource.VoucherResourceDto;
 import qnt.moviebooking.entity.VoucherEntity;
+import qnt.moviebooking.exception.ExistException;
+import qnt.moviebooking.exception.NotFoundException;
 import qnt.moviebooking.repository.VoucherRepository;
 
 @Service
@@ -79,7 +82,7 @@ public class VoucherService {
         List<VoucherEntity> vouchers = voucherRepository.findAllByDeletedAtAfter(LocalDateTime.now().minusMinutes(10));
 
         if (vouchers.isEmpty()) {
-            throw new IllegalArgumentException("Không có voucher nào được xoá vào 10 phút trước");
+            throw new NotFoundException("Không có voucher nào được xoá vào 10 phút trước");
         }
 
         for (VoucherEntity voucher : vouchers) {
@@ -109,56 +112,90 @@ public class VoucherService {
 
     public VoucherResourceDto getVoucherByIdForUser(Long id) {
         VoucherEntity voucher = voucherRepository.findByIdAndActiveTrue(id)
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new NotFoundException(
                         "Không tồn tại voucher với id: " + id));
 
         return mapToDto(voucher);
     }
 
-    private VoucherEntity getVoucherEntityById(Long id) {
+    public VoucherEntity getVoucherEntityById(Long id) {
         return voucherRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new IllegalArgumentException("Không tồn tại voucher với id: " + id));
+                .orElseThrow(() -> new NotFoundException("Không tồn tại voucher với id: " + id));
+    }
+
+    public BigDecimal applyVoucher(VoucherEntity voucher, BigDecimal totalPrice) {
+        LocalDateTime now = LocalDateTime.now();
+
+        if (!voucher.isActive()) {
+            throw new NotFoundException("Voucher không còn hoạt động");
+        }
+
+        if (voucher.getExpiryDate().isBefore(now)) {
+            throw new NotFoundException("Voucher đã hết hạn");
+        }
+
+        BigDecimal discount = BigDecimal.ZERO;
+
+        if (voucher.getDiscountAmount() != null) {
+            discount = voucher.getDiscountAmount();
+        } else if (voucher.getDiscountPercentage() != null) {
+            discount = totalPrice
+                    .multiply(BigDecimal.valueOf(voucher.getDiscountPercentage()))
+                    .divide(BigDecimal.valueOf(100));
+            if (voucher.getDiscountMax() != null) {
+                BigDecimal maxDiscount = voucher.getDiscountMax();
+                if (discount.compareTo(maxDiscount) > 0) {
+                    discount = maxDiscount;
+                }
+            }
+        }
+
+        if (discount.compareTo(totalPrice) > 0) {
+            discount = totalPrice;
+        }
+
+        return totalPrice.subtract(discount);
     }
 
     private void validateCode(VoucherRequestDto dto) {
         if (voucherRepository.existsByCodeAndDeletedAtIsNull(dto.getCode())) {
-            throw new IllegalArgumentException("Code đã tồn tại: " + dto.getCode());
+            throw new ExistException("Code đã tồn tại: " + dto.getCode());
         }
     }
 
     private void validateExpiryDate(VoucherRequestDto dto) {
-        if (!dto.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Ngày hết hạn phải sau ngày tạo");
+        if (!dto.getExpiryDate().isAfter(LocalDateTime.now())) {
+            throw new NotFoundException("Ngày hết hạn phải sau ngày tạo");
         }
     }
 
     private void validateDiscount(VoucherRequestDto dto) {
-        Double amount = dto.getDiscountAmount();
+        BigDecimal amount = dto.getDiscountAmount();
         Double percent = dto.getDiscountPercentage();
-        Double max = dto.getDiscountMax();
+        BigDecimal max = dto.getDiscountMax();
 
         if (amount == null && percent == null) {
-            throw new IllegalArgumentException("Phải có một trong hai loại giảm giá: Amount hoặc Percent");
+            throw new NotFoundException("Phải có một trong hai loại giảm giá: Amount hoặc Percent");
         }
 
         if (amount != null && percent != null) {
-            throw new IllegalArgumentException("Chỉ có một trong hai loại giảm giá: Amount hoặc Percent");
+            throw new NotFoundException("Chỉ có một trong hai loại giảm giá: Amount hoặc Percent");
         }
 
         if (amount != null) {
-            if (amount <= 0) {
-                throw new IllegalArgumentException("Số tiền giảm giá phải lớn hơn 0");
+            if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new NotFoundException("Số tiền giảm giá phải lớn hơn 0");
             }
         }
 
         if (percent != null) {
             if (percent <= 0 || percent > 100) {
-                throw new IllegalArgumentException("Số phần trăm giảm giá phải trong khoảng (0, 100]");
+                throw new NotFoundException("Số phần trăm giảm giá phải trong khoảng (0, 100]");
             }
         }
 
-        if (max != null && max <= 0) {
-            throw new IllegalArgumentException("Số tiền giảm gái tối đa phải lớn hơn 0");
+        if (max != null && max.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new NotFoundException("Số tiền giảm gái tối đa phải lớn hơn 0");
         }
     }
 
@@ -169,6 +206,7 @@ public class VoucherService {
                 .discountAmount(entity.getDiscountAmount())
                 .discountPercentage(entity.getDiscountPercentage())
                 .discountMax(entity.getDiscountMax())
+                .expiryDate(entity.getExpiryDate())
                 .active(entity.isActive())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())

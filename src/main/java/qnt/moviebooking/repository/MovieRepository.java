@@ -14,7 +14,7 @@ import qnt.moviebooking.enums.MovieEnums;
 public interface MovieRepository extends JpaRepository<MovieEntity, Long> {
     List<MovieEntity> findAllByDeletedAtIsNull();
 
-    List<MovieEntity> findDistinctByGenresIdAndDeletedAtIsNull(Long genreId);
+    List<MovieEntity> findDistinctByMovieGenresGenreIdAndDeletedAtIsNull(Long genreId);
 
     Optional<MovieEntity> findByIdAndDeletedAtIsNull(Long id);
 

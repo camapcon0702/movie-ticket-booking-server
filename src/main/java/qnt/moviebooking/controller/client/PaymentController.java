@@ -1,6 +1,5 @@
 package qnt.moviebooking.controller.client;
 
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import qnt.moviebooking.service.PaymentService;
 
 import java.util.Map;
+
 @RestController("paymentClientController")
 @RequiredArgsConstructor
 @RequestMapping
@@ -22,14 +22,12 @@ public class PaymentController {
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "payUrl", payUrl,
-                    "message", "Vui lòng quét QR code để thanh toán"
-            ));
+                    "message", "Vui lòng quét QR code để thanh toán"));
         } catch (Exception ex) {
             log.error("Error creating MoMo payment for booking {}: ", bookingId, ex);
             return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
-                    "message", ex.getMessage()
-            ));
+                    "message", ex.getMessage()));
         }
     }
 
@@ -40,17 +38,14 @@ public class PaymentController {
             return ResponseEntity.ok(Map.of(
                     "success", true,
                     "result", result,
-                    "message", "Vui lòng quét QR code để thanh toán"
-            ));
+                    "message", "Vui lòng quét QR code để thanh toán"));
         } catch (Exception ex) {
             log.error("Error creating MoMo payment for booking {}: ", bookingId, ex);
             return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
-                    "message", ex.getMessage()
-            ));
+                    "message", ex.getMessage()));
         }
     }
-
 
     @GetMapping("/momo/return")
     public String momoReturn(@RequestParam Map<String, String> params) {
@@ -78,14 +73,12 @@ public class PaymentController {
             }
             return ResponseEntity.ok(Map.of(
                     "status", "success",
-                    "message", "IPN received"
-            ));
+                    "message", "IPN received"));
         } catch (Exception ex) {
             log.error("Error processing MoMo IPN: ", ex);
             return ResponseEntity.status(500).body(Map.of(
                     "status", "error",
-                    "message", ex.getMessage()
-            ));
+                    "message", ex.getMessage()));
         }
     }
 }

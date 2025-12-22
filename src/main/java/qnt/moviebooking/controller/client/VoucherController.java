@@ -2,6 +2,7 @@ package qnt.moviebooking.controller.client;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,13 +24,15 @@ public class VoucherController {
     public ResponseEntity<ApiResponse<List<VoucherResourceDto>>> getAllVouchersForUser() {
         List<VoucherResourceDto> response = voucherService.getAllVoucherExpired(true);
 
-        return ResponseEntity.ok().body(new ApiResponse<>(true, "Lấy thông tin voucher thành công", response));
+        return ResponseEntity.ok()
+                .body(new ApiResponse<>(HttpStatus.OK.value(), "Lấy thông tin voucher thành công", response));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<VoucherResourceDto>> getVoucherForUser(@PathVariable Long id) {
         VoucherResourceDto response = voucherService.getVoucherByIdForUser(id);
 
-        return ResponseEntity.ok().body(new ApiResponse<>(true, "Lấy thông tin voucher thành công", response));
+        return ResponseEntity.ok().body(new ApiResponse<>(
+                HttpStatus.OK.value(), "Lấy thông tin voucher thành công", response));
     }
 }

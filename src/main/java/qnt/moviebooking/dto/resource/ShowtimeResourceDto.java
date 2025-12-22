@@ -17,7 +17,7 @@ public class ShowtimeResourceDto {
     private Long movieId;
     private Long auditoriumId;
     private BigDecimal basePrice;
-    private LocalDateTime startTimes;
+    private LocalDateTime startTime;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

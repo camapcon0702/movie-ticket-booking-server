@@ -2,6 +2,7 @@ package qnt.moviebooking.controller.client;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,11 +15,7 @@ import qnt.moviebooking.dto.ApiResponse;
 import qnt.moviebooking.dto.resource.SeatResourceDto;
 import qnt.moviebooking.service.SeatService;
 
-<<<<<<< HEAD
-@RestController("seatClientController")
-=======
 @RestController("ClientSeatController")
->>>>>>> 2c10bc1e2b7f2469448d9beaf8f3dac5aa3aa5f5
 @RequestMapping("v1.0/seats")
 @RequiredArgsConstructor
 public class SeatController {
@@ -30,7 +27,8 @@ public class SeatController {
 
         List<SeatResourceDto> seats = seatService.getSeatsByAuditorium(id);
 
-        return ResponseEntity.ok().body(new ApiResponse<>(true, "Lấy thông tin ghế thành công", seats));
+        return ResponseEntity.ok()
+                .body(new ApiResponse<>(HttpStatus.OK.value(), "Lấy thông tin ghế thành công", seats));
     }
 
     @GetMapping("/auditorium/{id}/filter")
@@ -38,7 +36,8 @@ public class SeatController {
             @RequestBody List<Long> seatsId) {
         List<SeatResourceDto> seats = seatService.getSeatsByIdsAndAuditorium(id, seatsId);
 
-        return ResponseEntity.ok().body(new ApiResponse<>(true, "Lấy thông tin ghế thành công", seats));
+        return ResponseEntity.ok().body(new ApiResponse<>(
+                HttpStatus.OK.value(), "Lấy thông tin ghế thành công", seats));
     }
 
     @GetMapping("/{id}")
@@ -46,6 +45,6 @@ public class SeatController {
 
         SeatResourceDto seat = seatService.getSeatById(id);
 
-        return ResponseEntity.ok().body(new ApiResponse<>(true, "Lấy thông tin ghế thành công", seat));
+        return ResponseEntity.ok().body(new ApiResponse<>(HttpStatus.OK.value(), "Lấy thông tin ghế thành công", seat));
     }
 }
