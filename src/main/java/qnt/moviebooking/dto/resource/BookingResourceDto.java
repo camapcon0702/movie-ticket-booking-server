@@ -21,6 +21,7 @@ public class BookingResourceDto {
     private LocalDateTime startTime;
     private BookingEnums status;
     private List<TicketResourceDto> tickets;
+    private List<OrderFoodResourceDto> orderedFoods;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

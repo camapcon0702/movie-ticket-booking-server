@@ -26,7 +26,7 @@ public class PaymentService {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public String createMomoPayment(Long bookingId) {
-        BookingEntity booking = bookingRepository.findByIdAndDeletedAtIsNullAndStatus(bookingId,
+        BookingEntity booking = bookingRepository.findByIdAndStatus(bookingId,
                 BookingEnums.PENDING)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
@@ -100,7 +100,7 @@ public class PaymentService {
     public Integer createpaymentOffline(Long bookingId) {
         try {
             BookingEntity booking = bookingRepository
-                    .findByIdAndDeletedAtIsNullAndStatus(bookingId, BookingEnums.PENDING)
+                    .findByIdAndStatus(bookingId, BookingEnums.PENDING)
                     .orElseThrow(() -> new RuntimeException("Booking not found"));
             PaymentEntity payment = PaymentEntity.builder()
                     .booking(booking)
