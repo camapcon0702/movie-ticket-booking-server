@@ -3,14 +3,19 @@ package qnt.moviebooking.service;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import qnt.moviebooking.dto.request.BookingRequestDto;
+import qnt.moviebooking.dto.request.OrderFoodRequestDto;
 import qnt.moviebooking.dto.resource.BookingResourceDto;
+import qnt.moviebooking.dto.resource.OrderFoodResourceDto;
 import qnt.moviebooking.dto.resource.TicketResourceDto;
 import qnt.moviebooking.entity.BookingEntity;
+import qnt.moviebooking.entity.BookingFoodEntity;
+import qnt.moviebooking.entity.FoodEntity;
 import qnt.moviebooking.entity.SeatEntity;
 import qnt.moviebooking.entity.ShowtimeEntity;
 import qnt.moviebooking.entity.TicketEntity;
@@ -29,6 +34,7 @@ public class BookingService {
     private final ShowtimeService showtimeService;
     private final VoucherService voucherService;
     private final TicketService ticketService;
+    private final FoodService foodService;
     private final UserService userService;
     private final SeatService seatService;
 
@@ -77,6 +83,24 @@ public class BookingService {
             total = total.add(price);
         }
 
+        if (dto.getOrders() != null) {
+            for (OrderFoodRequestDto orderDto : dto.getOrders()) {
+                FoodEntity food = foodService.getFoodEntityById(orderDto.getFoodId());
+
+                BookingFoodEntity bookingFood = BookingFoodEntity.builder()
+                        .booking(booking)
+                        .food(food)
+                        .quantity(orderDto.getQuantity())
+                        .build();
+
+                booking.getBookingFoods().add(bookingFood);
+
+                BigDecimal foodTotal = food.getPrice()
+                        .multiply(BigDecimal.valueOf(orderDto.getQuantity()));
+                total = total.add(foodTotal);
+            }
+        }
+
         if (voucher != null) {
             total = voucherService.applyVoucher(voucher, total);
             booking.setVoucher(voucher);
@@ -89,6 +113,44 @@ public class BookingService {
         return mapToResource(booking);
     }
 
+    @Transactional
+    public BookingResourceDto updateBookingStatus(Long bookingId, BookingEnums status) {
+        BookingEntity booking = getBookingEntityById(bookingId);
+
+        booking.setStatus(status);
+        bookingRepository.save(booking);
+
+        return mapToResource(booking);
+    }
+
+    public BookingResourceDto getBookingById(Long bookingId) {
+        BookingEntity booking = getBookingEntityById(bookingId);
+
+        return mapToResource(booking);
+    }
+
+    public BookingEntity getBookingEntityById(Long bookingId) {
+        return bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new BadRequestException("Đặt chỗ không tồn tại"));
+    }
+
+    public List<BookingResourceDto> getAllBookings() {
+        List<BookingEntity> bookings = bookingRepository.findAll();
+
+        return bookings.stream()
+                .map(this::mapToResource)
+                .toList();
+    }
+
+    public List<BookingResourceDto> getBookingsByUser() {
+        UserEntity user = userService.getCurrentUser();
+        List<BookingEntity> bookings = bookingRepository.findByUserId(user.getId());
+
+        return bookings.stream()
+                .map(this::mapToResource)
+                .toList();
+    }
+
     private BookingResourceDto mapToResource(BookingEntity booking) {
         return BookingResourceDto.builder()
                 .id(booking.getId())
@@ -96,6 +158,7 @@ public class BookingService {
                 .status(booking.getStatus())
                 .startTime(booking.getShowtime().getStartTime())
                 .tickets(booking.getTickets().stream().map(this::toTicketResource).toList())
+                .orderedFoods(booking.getBookingFoods().stream().map(this::toOrderFoodResource).toList())
                 .nameMovie(booking.getShowtime().getMovie().getTitle())
                 .createdAt(booking.getCreatedAt())
                 .updatedAt(booking.getUpdatedAt())
@@ -109,6 +172,14 @@ public class BookingService {
                 .auditoriumName(ticket.getSeat().getAuditorium().getName())
                 .price(ticket.getPrice())
                 .status(ticket.getStatus())
+                .build();
+    }
+
+    private OrderFoodResourceDto toOrderFoodResource(BookingFoodEntity bookingFood) {
+        return OrderFoodResourceDto.builder()
+                .foodId(bookingFood.getFood().getId())
+                .foodName(bookingFood.getFood().getName())
+                .quantity(bookingFood.getQuantity())
                 .build();
     }
 }

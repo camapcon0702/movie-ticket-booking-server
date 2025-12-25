@@ -5,21 +5,18 @@ import org.springframework.stereotype.Repository;
 import qnt.moviebooking.entity.BookingEntity;
 import qnt.moviebooking.enums.BookingEnums;
 
-
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface BookingRepository extends JpaRepository<BookingEntity,Long> {
+public interface BookingRepository extends JpaRepository<BookingEntity, Long> {
 
-    List<BookingEntity> findAllByDeletedAtIsNull();
+    List<BookingEntity> findByUserId(Long userId);
 
-    List<BookingEntity> findAllByUserIdAndDeletedAtIsNull(Long id);
+    List<BookingEntity> findAll();
 
-    List<BookingEntity> findAllByDeletedAtAfter(LocalDateTime date);
+    Optional<BookingEntity> findById(Long bookingId);
 
-    Optional<BookingEntity> findByIdAndDeletedAtIsNull(Long bookingId);
-    Optional<BookingEntity> findByIdAndDeletedAtIsNullAndStatus(Long id, BookingEnums status);
+    Optional<BookingEntity> findByIdAndStatus(Long id, BookingEnums status);
 
 }
