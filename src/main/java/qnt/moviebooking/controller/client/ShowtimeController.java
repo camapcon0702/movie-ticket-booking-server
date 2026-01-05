@@ -4,13 +4,11 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.ApiResponse;
+import qnt.moviebooking.dto.resource.SeatAvailabilityDto;
 import qnt.moviebooking.dto.resource.ShowtimeResourceDto;
 import qnt.moviebooking.service.ShowtimeService;
 
@@ -37,4 +35,13 @@ public class ShowtimeController {
         return ResponseEntity.ok(new ApiResponse<>(
                 HttpStatus.OK.value(), "Lấy danh sách showtime thành công", showtime));
     }
+
+    @GetMapping("/{id}/seat")
+    public ResponseEntity<ApiResponse<List<SeatAvailabilityDto>>> getAllSeatByShowtime(@PathVariable Long id) {
+        List<SeatAvailabilityDto> showtime = showtimeService.getSeatByShowtime(id);
+
+        return ResponseEntity.ok(new ApiResponse<>(
+                HttpStatus.OK.value(), "Lấy danh sách showtime thành công", showtime));
+    }
+
 }

@@ -1,11 +1,14 @@
 package qnt.moviebooking.controller.client;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import qnt.moviebooking.service.PaymentService;
 
+import java.io.IOException;
 import java.util.Map;
 
 @RestController("paymentClientController")
@@ -13,6 +16,9 @@ import java.util.Map;
 @RequestMapping
 @Slf4j
 public class PaymentController {
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
     private final PaymentService paymentService;
 
     @PostMapping("/booking/{bookingId}/momo")
@@ -48,15 +54,14 @@ public class PaymentController {
     }
 
     @GetMapping("/momo/return")
-    public String momoReturn(@RequestParam Map<String, String> params) {
-        String resultCode = params.get("resultCode");
-        String orderId = params.get("orderId");
-        if ("0".equals(resultCode)) {
-            return "redirect:/booking-success.html?orderId=" + orderId;
-        } else {
-            return "redirect:/booking-failed.html?error=" + resultCode;
+    public void momoReturn(
+            HttpServletResponse response
+    ) throws IOException {
+
+            response.sendRedirect(
+                    frontendUrl + "/history"
+            );
         }
-    }
 
     @PostMapping("/momo/ipn")
     public ResponseEntity<?> momoIpn(@RequestBody Map<String, Object> body) {
