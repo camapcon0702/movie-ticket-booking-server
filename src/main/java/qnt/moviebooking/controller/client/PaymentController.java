@@ -17,8 +17,6 @@ import java.util.Map;
 @Slf4j
 public class PaymentController {
 
-    @Value("${frontend.url}")
-    private String frontendUrl;
     private final PaymentService paymentService;
 
     @PostMapping("/booking/{bookingId}/momo")
@@ -52,16 +50,6 @@ public class PaymentController {
                     "message", ex.getMessage()));
         }
     }
-
-    @GetMapping("/momo/return")
-    public void momoReturn(
-            HttpServletResponse response
-    ) throws IOException {
-
-            response.sendRedirect(
-                    frontendUrl + "/history"
-            );
-        }
 
     @PostMapping("/momo/ipn")
     public ResponseEntity<?> momoIpn(@RequestBody Map<String, Object> body) {
