@@ -10,6 +10,8 @@ import qnt.moviebooking.dto.request.BookingRequestDto;
 import qnt.moviebooking.dto.resource.BookingResourceDto;
 import qnt.moviebooking.service.BookingService;
 
+import java.util.List;
+
 @RestController("ClientBookingController")
 @RequiredArgsConstructor
 @RequestMapping("/v1.0/bookings")
@@ -24,4 +26,14 @@ public class BookingController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>(HttpStatus.CREATED.value(), "Tạo Booking thành công", response));
     }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<BookingResourceDto>>> getAllBookingsByUser() {
+        List<BookingResourceDto> bookings = bookingService.getBookingsByUser();
+
+        return ResponseEntity.ok()
+                .body(new ApiResponse<>(HttpStatus.OK.value(), "Fetched all bookings successfully", bookings));
+    }
+
+
 }
