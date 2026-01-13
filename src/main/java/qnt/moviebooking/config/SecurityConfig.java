@@ -67,6 +67,7 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(appUserDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder());
+
         return new ProviderManager(authenticationProvider);
     }
 
