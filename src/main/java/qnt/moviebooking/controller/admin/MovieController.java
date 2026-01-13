@@ -2,22 +2,29 @@ package qnt.moviebooking.controller.admin;
 
 import java.util.List;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 import qnt.moviebooking.dto.ApiResponse;
 import qnt.moviebooking.dto.request.MovieRequestDto;
 import qnt.moviebooking.dto.resource.MovieResourceDto;
+import qnt.moviebooking.entity.MovieEntity;
+import qnt.moviebooking.repository.MovieRepository;
+import qnt.moviebooking.service.FileStoreService;
 import qnt.moviebooking.service.MovieService;
 
 @RestController("AdminMovieController")
 @RequiredArgsConstructor
-@RequestMapping("/admin/movies")
+@RequestMapping("/v1.0/admin/movies")
 public class MovieController {
 
     private final MovieService movieService;
+    private final FileStoreService fileStoreService;
+    private final MovieRepository movieRepository;
 
     @PostMapping
     public ResponseEntity<ApiResponse<MovieResourceDto>> createMovie(@RequestBody MovieRequestDto request) {
@@ -25,6 +32,19 @@ public class MovieController {
         MovieResourceDto createdMovie = movieService.createMovie(request);
 
         return ResponseEntity.ok(new ApiResponse<>(HttpStatus.CREATED.value(), "Tạo phim thành công", createdMovie));
+    }
+    
+    @PostMapping("/{movieId}/poster")
+    public ResponseEntity<ApiResponse<MovieResourceDto>> uploadPoster(@PathVariable Long movieId, @RequestParam("file") @Valid MultipartFile file) throws Exception {
+        MovieEntity movie = movieService.getMovieEntityById(movieId);
+
+        String posterUrl = fileStoreService.uploadFile(file, "");
+        movie.setPosterUrl(posterUrl);
+        movieRepository.save(movie);
+
+        MovieResourceDto updatedMovie = movieService.mapToResource(movie);
+
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.CREATED.value(), "Upload poster thành công", updatedMovie));
     }
 
     @PutMapping("/{id}")

@@ -14,7 +14,7 @@ import qnt.moviebooking.dto.resource.BookingResourceDto;
 import qnt.moviebooking.service.BookingService;
 
 @RestController("AdminBookingController")
-@RequestMapping("/admin/bookings")
+@RequestMapping("/v1.0/admin/bookings")
 @RequiredArgsConstructor
 public class BookingController {
     private final BookingService bookingService;

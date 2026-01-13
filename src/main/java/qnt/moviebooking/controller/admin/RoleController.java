@@ -19,7 +19,7 @@ import qnt.moviebooking.dto.resource.RoleResourceDto;
 import qnt.moviebooking.service.RoleService;
 
 @RestController("AdminRoleController")
-@RequestMapping("admin/roles")
+@RequestMapping("/v1.0/admin/roles")
 @RequiredArgsConstructor
 public class RoleController {
 

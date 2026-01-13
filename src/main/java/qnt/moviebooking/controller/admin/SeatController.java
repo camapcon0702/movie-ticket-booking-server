@@ -15,7 +15,7 @@ import qnt.moviebooking.service.SeatService;
 
 @RestController("AdminSeatController")
 @RequiredArgsConstructor
-@RequestMapping("/admin/seats")
+@RequestMapping("/v1.0/admin/seats")
 public class SeatController {
 
     private final SeatService seatService;
@@ -32,6 +32,12 @@ public class SeatController {
             @RequestBody SeatRequestDto request) {
         SeatResourceDto seat = seatService.updateSeat(id, request);
         return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Cập nhật ghế thành công!", seat));
+    }
+
+    @PutMapping("{id}/type")
+    public ResponseEntity<ApiResponse<SeatResourceDto>> updateSeatType(@PathVariable Long id, @RequestParam Long typeId) {
+        SeatResourceDto seat = seatService.updateSeatType(id, typeId);
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Cập nhật loại ghế thành công!", seat));
     }
 
     @DeleteMapping("/{id}")

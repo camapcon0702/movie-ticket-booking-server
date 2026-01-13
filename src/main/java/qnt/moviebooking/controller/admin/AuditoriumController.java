@@ -14,7 +14,7 @@ import qnt.moviebooking.service.AuditoriumService;
 
 @RestController("AdminAuditoriumController")
 @RequiredArgsConstructor
-@RequestMapping("/admin/auditoriums")
+@RequestMapping("/v1.0/admin/auditoriums")
 public class AuditoriumController {
 
     private final AuditoriumService auditoriumService;

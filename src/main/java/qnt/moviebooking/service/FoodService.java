@@ -55,6 +55,7 @@ public class FoodService {
         FoodEntity food = getFoodEntityById(id);
 
         validateName(dto.getName(), id);
+        food.setName(dto.getName());
         food.setPrice(dto.getPrice());
         food.setImgUrl(dto.getImgUrl());
 

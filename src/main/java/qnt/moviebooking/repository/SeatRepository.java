@@ -23,5 +23,7 @@ public interface SeatRepository extends JpaRepository<SeatEntity, Long> {
     List<SeatEntity> findAllByAuditoriumIdAndIdInAndDeletedAtIsNull(Long auditoriumId, List<Long> seatIds);
 
     List<SeatEntity> findAllByDeletedAtAfter(LocalDateTime time);
+
+    List<SeatEntity> findByAuditoriumIdAndDeletedAtIsNull(Long auditoriumId);
 }
 

@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.ApiResponse;
 import qnt.moviebooking.dto.resource.MovieResourceDto;
+import qnt.moviebooking.enums.MovieEnums;
+import qnt.moviebooking.repository.MovieRepository;
 import qnt.moviebooking.service.MovieService;
 
 @RestController("ClientMovieController")
@@ -21,6 +23,7 @@ import qnt.moviebooking.service.MovieService;
 public class MovieController {
 
     private final MovieService movieService;
+    private final MovieRepository movieRepository;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<MovieResourceDto>>> getAllMoviesForUser() {
@@ -59,5 +62,13 @@ public class MovieController {
 
         return ResponseEntity.ok(new ApiResponse<>(
                 HttpStatus.OK.value(), "Lấy danh sách phim theo thể loại thành công.", movies));
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<ApiResponse<List<MovieResourceDto>>> getMoviesByStatusForUser(@RequestParam MovieEnums status) {
+
+        List<MovieResourceDto> movies = movieService.getMoviesByStatusForUser(status);
+
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Lấy danh sách phim thành công.", movies));
     }
 }

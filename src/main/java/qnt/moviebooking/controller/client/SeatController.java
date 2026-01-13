@@ -13,10 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.ApiResponse;
 import qnt.moviebooking.dto.resource.SeatResourceDto;
+import qnt.moviebooking.dto.resource.ShowtimeSeatResourceDto;
 import qnt.moviebooking.service.SeatService;
 
 @RestController("ClientSeatController")
-@RequestMapping("v1.0/seats")
+@RequestMapping("/v1.0/seats")
 @RequiredArgsConstructor
 public class SeatController {
 
@@ -47,4 +48,12 @@ public class SeatController {
 
         return ResponseEntity.ok().body(new ApiResponse<>(HttpStatus.OK.value(), "Lấy thông tin ghế thành công", seat));
     }
+
+    @GetMapping("/showtime/{id}")
+    public ResponseEntity<ApiResponse<List<ShowtimeSeatResourceDto>>> getSeatByShowtimeId(@PathVariable Long id) {
+        List<ShowtimeSeatResourceDto> showtimeSeats = seatService.getSeatsByShowtime(id);
+
+        return ResponseEntity.ok().body(new ApiResponse<>(HttpStatus.OK.value(), "Lấy danh sách ghế của suất chiếu thành công", showtimeSeats));
+    }
+
 }

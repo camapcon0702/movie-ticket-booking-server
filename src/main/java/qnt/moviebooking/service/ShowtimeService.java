@@ -147,6 +147,7 @@ public class ShowtimeService {
                 .id(entity.getId())
                 .movieId(entity.getMovie().getId())
                 .auditoriumId(entity.getAuditorium().getId())
+                .movieName(entity.getMovie().getTitle())
                 .basePrice(entity.getBasePrice())
                 .startTime(entity.getStartTime())
                 .createdAt(entity.getCreatedAt())

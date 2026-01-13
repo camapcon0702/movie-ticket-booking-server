@@ -12,7 +12,7 @@ import qnt.moviebooking.dto.resource.UserResourceDto;
 import qnt.moviebooking.service.UserService;
 
 @RestController("AdminUserController")
-@RequestMapping("/admin/users")
+@RequestMapping("/v1.0/admin/users")
 @RequiredArgsConstructor
 public class UserController {
 

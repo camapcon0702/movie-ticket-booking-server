@@ -21,7 +21,7 @@ import qnt.moviebooking.service.GenreService;
 
 @RestController("AdminGenreController")
 @RequiredArgsConstructor
-@RequestMapping("/admin/genres")
+@RequestMapping("/v1.0/admin/genres")
 public class GenreController {
 
     private final GenreService genreService;
