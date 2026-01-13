@@ -5,20 +5,20 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class ShowtimeResourceDto {
+public class ShowtimeSeatResourceDto {
     private Long id;
-    private Long movieId;
+    private String rowChart;
+    private String seatNumber;
+    private SeatPriceResourceDto seatType;
+    private boolean isBooked;
+    private boolean status;
     private Long auditoriumId;
-    private String movieName;
-    private BigDecimal basePrice;
-    private LocalDateTime startTime;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

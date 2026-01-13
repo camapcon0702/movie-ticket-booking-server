@@ -14,4 +14,6 @@ public interface TicketRepository extends JpaRepository<TicketEntity, Long> {
             Long seatId,
             Long showtimeId,
             List<TicketEnums> statuses);
+
+    List<TicketEntity> findByBookingIdIn(List<Long> bookingIds);
 }

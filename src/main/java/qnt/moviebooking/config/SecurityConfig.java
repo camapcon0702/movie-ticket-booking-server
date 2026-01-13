@@ -37,8 +37,9 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/momo/ipn"
                         ).permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/v1.0/admin/**").hasRole("ADMIN")
                         .requestMatchers("/v1.0/auth/**").permitAll()
+                        .requestMatchers("/v1.0/movies/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
@@ -66,6 +67,7 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(appUserDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder());
+
         return new ProviderManager(authenticationProvider);
     }
 

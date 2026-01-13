@@ -21,7 +21,7 @@ import qnt.moviebooking.dto.resource.VoucherResourceDto;
 import qnt.moviebooking.service.VoucherService;
 
 @RestController("AdminVoucherController")
-@RequestMapping("/admin/vouchers")
+@RequestMapping("/v1.0/admin/vouchers")
 @RequiredArgsConstructor
 public class VocherController {
     private final VoucherService voucherService;

@@ -12,13 +12,16 @@ import qnt.moviebooking.dto.request.SeatRequestDto;
 import qnt.moviebooking.dto.request.SeatsRequestDto;
 import qnt.moviebooking.dto.resource.SeatPriceResourceDto;
 import qnt.moviebooking.dto.resource.SeatResourceDto;
+import qnt.moviebooking.dto.resource.ShowtimeSeatResourceDto;
 import qnt.moviebooking.entity.AuditoriumEntity;
 import qnt.moviebooking.entity.SeatEntity;
 import qnt.moviebooking.entity.SeatPriceEntity;
+import qnt.moviebooking.entity.ShowtimeEntity;
 import qnt.moviebooking.exception.ExistException;
 import qnt.moviebooking.exception.NotFoundException;
 import qnt.moviebooking.repository.AuditoriumRepository;
 import qnt.moviebooking.repository.SeatRepository;
+import qnt.moviebooking.repository.ShowtimeRepository;
 
 @Service
 @Transactional(readOnly = true)
@@ -27,6 +30,8 @@ public class SeatService {
     private final SeatRepository seatRepository;
     private final AuditoriumRepository auditoriumRepository;
     private final SeatPriceService seatPriceService;
+    private final ShowtimeRepository showtimeRepository;
+    private final TicketService ticketService;
 
     @Transactional
     public List<SeatResourceDto> createSeats(SeatsRequestDto dto) {
@@ -83,6 +88,17 @@ public class SeatService {
         existingSeat.setRowChart(dto.getRowChart());
         existingSeat.setSeatNumber(dto.getSeatNumber());
         existingSeat.setSeatPrice(seatPrice);
+
+        SeatEntity savedEntity = seatRepository.save(existingSeat);
+        return mapToDto(savedEntity);
+    }
+
+    @Transactional
+    public SeatResourceDto updateSeatType(Long id, Long seatTypeId) {
+        SeatEntity existingSeat = getSeatEntityById(id);
+        SeatPriceEntity existingSeatPrice = seatPriceService.getSeatPriceEntityById(seatTypeId);
+
+        existingSeat.setSeatPrice(existingSeatPrice);
 
         SeatEntity savedEntity = seatRepository.save(existingSeat);
         return mapToDto(savedEntity);
@@ -173,6 +189,20 @@ public class SeatService {
         }
     }
 
+    public List<ShowtimeSeatResourceDto> getSeatsByShowtime(Long showtimeId) {
+
+        ShowtimeEntity showtime = showtimeRepository.findById(showtimeId)
+                .orElseThrow(() -> new RuntimeException("Showtime not found"));
+
+        Long auditoriumId = showtime.getAuditorium().getId();
+
+        List<SeatEntity> seats = seatRepository.findByAuditoriumIdAndDeletedAtIsNull(auditoriumId);
+
+        return seats.stream()
+                .map(seat -> mapToShowtimeSeatDto(seat, showtimeId))
+                .toList();
+    }
+
     private SeatResourceDto mapToDto(SeatEntity entity) {
         return SeatResourceDto.builder()
                 .id(entity.getId())
@@ -186,6 +216,27 @@ public class SeatService {
                         .updatedAt(entity.getUpdatedAt())
                         .build())
                 .auditoriumId(entity.getAuditorium().getId())
+                .status(entity.isStatus())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .build();
+    }
+
+    private ShowtimeSeatResourceDto mapToShowtimeSeatDto(SeatEntity entity, Long showtimeId) {
+        boolean isBooked = ticketService.isSeatBooked(entity.getId(), showtimeId);
+        return ShowtimeSeatResourceDto.builder()
+                .id(entity.getId())
+                .rowChart(entity.getRowChart())
+                .seatNumber(entity.getSeatNumber())
+                .seatType(SeatPriceResourceDto.builder()
+                        .id(entity.getId())
+                        .seatType(entity.getSeatPrice().getSeatType())
+                        .price(entity.getSeatPrice().getPrice())
+                        .createdAt(entity.getCreatedAt())
+                        .updatedAt(entity.getUpdatedAt())
+                        .build())
+                .auditoriumId(entity.getAuditorium().getId())
+                .isBooked(isBooked)
                 .status(entity.isStatus())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())

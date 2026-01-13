@@ -124,6 +124,11 @@ public class MovieService {
                 .stream().map(this::mapToResource).toList();
     }
 
+    public List<MovieResourceDto> getMoviesByStatusForUser(MovieEnums status) {
+        return movieRepository.findAllByStatusAndDeletedAtIsNull(status)
+                .stream().map(this::mapToResource).toList();
+    }
+
     public List<MovieResourceDto> searchMoviesByTitleForUser(String keyword) {
         return movieRepository
                 .findByTitleContainingIgnoreCaseAndDeletedAtIsNullAndStatusIn(keyword, USER_VISIBLE_STATUSES)

@@ -20,7 +20,7 @@ import qnt.moviebooking.dto.resource.SeatPriceResourceDto;
 import qnt.moviebooking.service.SeatPriceService;
 
 @RestController("AdminSeatPriceController")
-@RequestMapping("/admin/seat-prices")
+@RequestMapping("/v1.0/admin/seat-prices")
 @RequiredArgsConstructor
 public class SeatPriceController {
     private final SeatPriceService seatPriceService;

@@ -36,6 +36,8 @@ public class MovieEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String title;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
     private Long durationMinutes;
     private LocalDate releaseDate;

@@ -2,13 +2,7 @@ package qnt.moviebooking.controller.admin;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.ApiResponse;
@@ -16,8 +10,10 @@ import qnt.moviebooking.dto.request.FoodRequestDto;
 import qnt.moviebooking.dto.resource.FoodResourceDto;
 import qnt.moviebooking.service.FoodService;
 
+import java.util.List;
+
 @RestController("AdminFoodController")
-@RequestMapping("/admin/foods")
+@RequestMapping("/v1.0/admin/foods")
 @RequiredArgsConstructor
 public class FoodController {
     private final FoodService foodService;
@@ -47,5 +43,15 @@ public class FoodController {
     public ResponseEntity<ApiResponse<Void>> rollbackDeletedFood() {
         foodService.rollbackDeleteFood();
         return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Food rollback deleted successfully", null));
+    }
+
+    @GetMapping("")
+    public ResponseEntity<ApiResponse<List<FoodResourceDto>>> getAllFood() {
+        return  ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "All food resources successfully", foodService.getAllFood()));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<FoodResourceDto>> getFood(@PathVariable Long id) {
+        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Food updated successfully", foodService.getFoodById(id)));
     }
 }

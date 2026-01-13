@@ -27,6 +27,8 @@ public interface SeatRepository extends JpaRepository<SeatEntity, Long> {
 
     List<SeatEntity> findAllByDeletedAtAfter(LocalDateTime time);
 
+    List<SeatEntity> findByAuditoriumIdAndDeletedAtIsNull(Long auditoriumId);
+
     @Query("""
     SELECT new qnt.moviebooking.dto.resource.SeatAvailabilityDto(
         s.id,

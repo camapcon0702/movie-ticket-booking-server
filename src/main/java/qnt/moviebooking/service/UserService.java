@@ -17,6 +17,7 @@ import qnt.moviebooking.dto.request.UserRequestDto;
 import qnt.moviebooking.dto.resource.UserResourceDto;
 import qnt.moviebooking.entity.RoleEntity;
 import qnt.moviebooking.entity.UserEntity;
+import qnt.moviebooking.exception.BadRequestException;
 import qnt.moviebooking.exception.NotFoundException;
 import qnt.moviebooking.repository.UserRepository;
 
@@ -153,15 +154,30 @@ public class UserService {
     }
 
     @Transactional
-    public UserResourceDto updateUser(String email, UserRequestDto request) {
+    public UserResourceDto updateUser(UserRequestDto request) {
         UserEntity user = getCurrentUser();
 
-        if (!request.getPassword().equals(request.getConfirmPassword())) {
-            throw new NotFoundException("Mật khẩu không trùng nhau!");
-        }
-
         user.setFullName(request.getFullName());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        String password = request.getPassword();
+        String confirmPassword = request.getConfirmPassword();
+
+        if (password != null || confirmPassword != null) {
+
+            if (password == null || confirmPassword == null) {
+                throw new BadRequestException("Vui lòng nhập đầy đủ mật khẩu và xác nhận mật khẩu ");
+            }
+
+            if (password.isBlank()) {
+                throw new BadRequestException("Mật khẩu không được để trống");
+            }
+
+            if (!password.equals(confirmPassword)) {
+                throw new BadRequestException("Mật khẩu không trùng nhau");
+            }
+
+            user.setPassword(passwordEncoder.encode(password));
+        }
 
         userRepository.save(user);
 

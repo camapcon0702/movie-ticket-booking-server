@@ -17,7 +17,7 @@ import qnt.moviebooking.service.UserService;
 
 @RestController("ClientUserController")
 @RequiredArgsConstructor
-@RequestMapping("v1.0/users")
+@RequestMapping("/v1.0/users")
 public class UserController {
 
     private final UserService userService;
@@ -30,10 +30,10 @@ public class UserController {
     }
 
     @PutMapping
-    public ResponseEntity<ApiResponse<UserResourceDto>> updateUser(@RequestParam String email,
+    public ResponseEntity<ApiResponse<UserResourceDto>> updateUser(
             @RequestBody UserRequestDto request) {
 
-        UserResourceDto user = userService.updateUser(email, request);
+        UserResourceDto user = userService.updateUser(request);
 
         return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "Cập nhật tài khoản thành công!", user));
     }

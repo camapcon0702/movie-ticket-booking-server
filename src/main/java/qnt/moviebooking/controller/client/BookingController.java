@@ -27,6 +27,18 @@ public class BookingController {
                 .body(new ApiResponse<>(HttpStatus.CREATED.value(), "Tạo Booking thành công", response));
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<ApiResponse<BookingResourceDto>> getBooking(@PathVariable Long id) {
+        BookingResourceDto response = bookingService.getBookingById(id);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(HttpStatus.OK.value(), "Lấy booking thành công", response));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<List<BookingResourceDto>>> getCurrentUserBooking() {
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(HttpStatus.OK.value(), "Lấy danh sách booking của user thành công", bookingService.getBookingsByUser()));
+    }
+
     @GetMapping
     public ResponseEntity<ApiResponse<List<BookingResourceDto>>> getAllBookingsByUser() {
         List<BookingResourceDto> bookings = bookingService.getBookingsByUser();

@@ -23,7 +23,7 @@ import qnt.moviebooking.service.ShowtimeService;
 
 @RestController("AdminShowtimeController")
 @RequiredArgsConstructor
-@RequestMapping("/admin/showtime")
+@RequestMapping("/v1.0/admin/showtimes")
 public class ShowtimeController {
 
     private final ShowtimeService showtimeService;
@@ -69,5 +69,22 @@ public class ShowtimeController {
 
         return ResponseEntity.ok(new ApiResponse<>(
                 HttpStatus.OK.value(), "Lấy thông tin showtime thành công", response));
+    }
+
+    @GetMapping("/movie/{id}")
+    public ResponseEntity<ApiResponse<List<ShowtimeResourceDto>>> getAllShowtimeByMovie(@PathVariable Long id) {
+        List<ShowtimeResourceDto> showtime = showtimeService.getShowtimeByMovie(id);
+
+        return ResponseEntity.ok(new ApiResponse<>(
+                HttpStatus.OK.value(), "Lấy danh sách showtime thành công", showtime));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<ShowtimeResourceDto>> getShowtimeById(@PathVariable Long id) {
+
+        ShowtimeResourceDto showtime = showtimeService.getShowtimeById(id);
+
+        return ResponseEntity
+                .ok(new ApiResponse<>(HttpStatus.OK.value(), "Lấy thông tin showtime thành công", showtime));
     }
 }
