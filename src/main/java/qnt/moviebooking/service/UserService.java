@@ -165,7 +165,7 @@ public class UserService {
         if (password != null || confirmPassword != null) {
 
             if (password == null || confirmPassword == null) {
-                throw new BadRequestException("Vui lòng nhập đầy đủ mật khẩu và xác nhận mật khẩu");
+                throw new BadRequestException("Vui lòng nhập đầy đủ mật khẩu và xác nhận mật khẩu ");
             }
 
             if (password.isBlank()) {
