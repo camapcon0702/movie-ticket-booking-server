@@ -142,6 +142,7 @@ public class BookingService {
                 .toList();
     }
 
+
     public List<BookingResourceDto> getBookingsByUser() {
         UserEntity user = userService.getCurrentUser();
         List<BookingEntity> bookings = bookingRepository.findByUserId(user.getId());
@@ -149,6 +150,18 @@ public class BookingService {
         return bookings.stream()
                 .map(this::mapToResource)
                 .toList();
+    }
+
+    @Transactional
+    public void cancel(BookingEntity booking) {
+
+        if (booking.getStatus() != BookingEnums.PENDING) {
+            return;
+        }
+
+        booking.setStatus(BookingEnums.CANCELLED);
+
+        bookingRepository.save(booking);
     }
 
     private BookingResourceDto mapToResource(BookingEntity booking) {

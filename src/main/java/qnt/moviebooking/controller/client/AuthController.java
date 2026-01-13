@@ -3,6 +3,7 @@ package qnt.moviebooking.controller.client;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,6 +41,7 @@ public class AuthController {
             }
 
             Map<String, Object> response = authService.login(request);
+
             return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK
                     .value(), "Đăng nhập thành công!",
                     response));

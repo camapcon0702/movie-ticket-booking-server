@@ -6,12 +6,15 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import qnt.moviebooking.dto.request.ShowtimeBulkRequestDto;
 import qnt.moviebooking.dto.request.ShowtimeRequestDto;
+import qnt.moviebooking.dto.resource.SeatAvailabilityDto;
+import qnt.moviebooking.dto.resource.SeatResourceDto;
 import qnt.moviebooking.dto.resource.ShowtimeResourceDto;
 import qnt.moviebooking.entity.AuditoriumEntity;
 import qnt.moviebooking.entity.MovieEntity;
 import qnt.moviebooking.entity.ShowtimeEntity;
 import qnt.moviebooking.enums.MovieEnums;
 import qnt.moviebooking.exception.NotFoundException;
+import qnt.moviebooking.repository.SeatRepository;
 import qnt.moviebooking.repository.ShowtimeRepository;
 
 import java.time.LocalDateTime;
@@ -27,7 +30,7 @@ public class ShowtimeService {
     private final ShowtimeRepository showtimeRepository;
     private final MovieService movieService;
     private final AuditoriumService auditoriumService;
-
+    private final SeatRepository seatRepository;
     @Transactional
     public List<ShowtimeResourceDto> createBulkShowtime(ShowtimeBulkRequestDto dto) {
         MovieEntity movie = movieService.getMovieEntityById(dto.getMovieId());
@@ -69,6 +72,8 @@ public class ShowtimeService {
         return showtime.stream().map(this::mapToResource).toList();
     }
 
+
+
     public ShowtimeEntity getShowtimeEntityById(Long showtimeId) {
         return showtimeRepository.findByIdAndDeletedAtIsNull(showtimeId)
                 .orElseThrow(() -> new NotFoundException("Không thấy suất chiếu với id: " + showtimeId));
@@ -91,6 +96,14 @@ public class ShowtimeService {
 
         return showtime.stream().map(this::mapToResource).toList();
     }
+
+    public List<SeatAvailabilityDto> getSeatByShowtime(Long showtimeId) {
+
+        List<SeatAvailabilityDto> seats = seatRepository.findAvailableSeatsForShowtime(showtimeId);
+
+        return seats;
+    }
+
 
     @Transactional
     public ShowtimeResourceDto updateShowtime(Long showtimeId, ShowtimeRequestDto dto) {
@@ -166,4 +179,5 @@ public class ShowtimeService {
                     }
                 });
     }
+
 }

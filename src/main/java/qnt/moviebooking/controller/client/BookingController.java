@@ -38,4 +38,14 @@ public class BookingController {
     public ResponseEntity<ApiResponse<List<BookingResourceDto>>> getCurrentUserBooking() {
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>(HttpStatus.OK.value(), "Lấy danh sách booking của user thành công", bookingService.getBookingsByUser()));
     }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<BookingResourceDto>>> getAllBookingsByUser() {
+        List<BookingResourceDto> bookings = bookingService.getBookingsByUser();
+
+        return ResponseEntity.ok()
+                .body(new ApiResponse<>(HttpStatus.OK.value(), "Fetched all bookings successfully", bookings));
+    }
+
+
 }

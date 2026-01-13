@@ -34,6 +34,9 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/momo/ipn"
+                        ).permitAll()
                         .requestMatchers("/v1.0/admin/**").hasRole("ADMIN")
                         .requestMatchers("/v1.0/auth/**").permitAll()
                         .requestMatchers("/v1.0/movies/**").permitAll()
