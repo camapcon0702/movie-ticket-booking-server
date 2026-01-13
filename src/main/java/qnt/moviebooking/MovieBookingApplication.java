@@ -6,10 +6,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class MoviebookingApplication {
+public class MovieBookingApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MoviebookingApplication.class, args);
+		SpringApplication.run(MovieBookingApplication.class, args);
 	}
 
 }
